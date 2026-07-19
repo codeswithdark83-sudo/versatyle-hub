@@ -86,7 +86,7 @@ function ProductPage() {
               <span className="text-foreground/60">{color}</span>
             </div>
             <div className="flex gap-3">
-              {product.colors.map((c) => (
+              {product.colors.map((c: string) => (
                 <button
                   key={c}
                   onClick={() => setColor(c)}
@@ -107,7 +107,7 @@ function ProductPage() {
               <a href="#" className="text-foreground/60 underline underline-offset-4">Size guide</a>
             </div>
             <div className="grid grid-cols-5 gap-2">
-              {product.sizes.map((s) => (
+              {product.sizes.map((s: string) => (
                 <button
                   key={s}
                   onClick={() => setSize(s)}

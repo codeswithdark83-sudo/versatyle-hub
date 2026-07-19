@@ -53,7 +53,7 @@ function Shop() {
               <button
                 key={f}
                 onClick={() =>
-                  navigate({ search: (prev) => ({ ...prev, category: value }) })
+                  navigate({ search: (prev: Record<string, string>) => ({ ...prev, category: value }) })
                 }
                 className={`eyebrow pb-1 border-b transition-colors ${
                   active
@@ -70,7 +70,7 @@ function Shop() {
           value={sort}
           onChange={(e) =>
             navigate({
-              search: (prev) => ({ ...prev, sort: e.target.value as typeof sort }),
+              search: (prev: Record<string, string>) => ({ ...prev, sort: e.target.value as typeof sort }),
             })
           }
           className="eyebrow bg-transparent border-b border-foreground pb-1 focus:outline-none cursor-pointer"
