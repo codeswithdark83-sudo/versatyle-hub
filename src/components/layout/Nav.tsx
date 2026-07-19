@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Search, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
 
 const CATEGORIES = [
   { label: "Men", to: "/shop", params: { category: "men" } },
@@ -11,6 +12,7 @@ const CATEGORIES = [
 
 export function Nav() {
   const { itemCount, setOpen } = useCart();
+  const { session } = useAuth();
   return (
     <nav className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border">
       <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
@@ -42,7 +44,12 @@ export function Nav() {
           >
             <Search className="size-4" strokeWidth={1.5} />
           </button>
-          <Link to="/" aria-label="Account" className="p-1.5 hover:opacity-60 transition-opacity">
+          <Link
+            to={session ? "/account" : "/auth"}
+            search={session ? undefined : { mode: "signin" }}
+            aria-label={session ? "Account" : "Sign in"}
+            className="p-1.5 hover:opacity-60 transition-opacity"
+          >
             <User className="size-4" strokeWidth={1.5} />
           </Link>
           <button
