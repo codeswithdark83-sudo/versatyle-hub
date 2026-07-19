@@ -15,6 +15,7 @@ import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CartProvider } from "@/lib/cart";
+import { AuthProvider } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -127,17 +128,19 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <div className="min-h-screen flex flex-col">
-          <Nav />
-          <main className="flex-1">
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-        <CartDrawer />
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <div className="min-h-screen flex flex-col">
+            <Nav />
+            <main className="flex-1">
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
+          <CartDrawer />
+        </CartProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
