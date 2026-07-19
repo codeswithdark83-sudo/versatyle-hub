@@ -1,0 +1,65 @@
+import { Link } from "@tanstack/react-router";
+import { Search, ShoppingBag, User } from "lucide-react";
+import { useCart } from "@/lib/cart";
+
+const CATEGORIES = [
+  { label: "Men", to: "/shop", params: { category: "men" } },
+  { label: "Women", to: "/shop", params: { category: "women" } },
+  { label: "Accessories", to: "/shop", params: { category: "accessories" } },
+  { label: "All", to: "/shop", params: {} },
+] as const;
+
+export function Nav() {
+  const { itemCount, setOpen } = useCart();
+  return (
+    <nav className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border">
+      <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-10">
+          <Link
+            to="/"
+            className="font-serif text-xl tracking-tight uppercase font-normal"
+          >
+            Versatile
+          </Link>
+          <div className="hidden md:flex gap-7">
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.label}
+                to={c.to}
+                search={c.params}
+                className="eyebrow link-underline text-foreground/80 hover:text-foreground"
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center gap-5">
+          <button
+            type="button"
+            aria-label="Search"
+            className="p-1.5 hover:opacity-60 transition-opacity"
+          >
+            <Search className="size-4" strokeWidth={1.5} />
+          </button>
+          <Link to="/" aria-label="Account" className="p-1.5 hover:opacity-60 transition-opacity">
+            <User className="size-4" strokeWidth={1.5} />
+          </Link>
+          <button
+            type="button"
+            aria-label={`Cart, ${itemCount} items`}
+            onClick={() => setOpen(true)}
+            className="p-1.5 hover:opacity-60 transition-opacity relative"
+          >
+            <ShoppingBag className="size-4" strokeWidth={1.5} />
+            {itemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-foreground text-background text-[9px] font-medium rounded-full size-4 flex items-center justify-center tabular-nums">
+                {itemCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+}

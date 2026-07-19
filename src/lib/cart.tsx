@@ -1,0 +1,115 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+export type CartItem = {
+  slug: string;
+  name: string;
+  price: number;
+  image: string;
+  size: string;
+  color: string;
+  quantity: number;
+};
+
+type CartContextValue = {
+  items: CartItem[];
+  itemCount: number;
+  subtotal: number;
+  isOpen: boolean;
+  setOpen: (open: boolean) => void;
+  addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
+  removeItem: (slug: string, size: string, color: string) => void;
+  updateQuantity: (slug: string, size: string, color: string, quantity: number) => void;
+  clear: () => void;
+};
+
+const CartContext = createContext<CartContextValue | null>(null);
+const STORAGE_KEY = "versatile.cart.v1";
+
+const keyOf = (i: Pick<CartItem, "slug" | "size" | "color">) =>
+  `${i.slug}::${i.size}::${i.color}`;
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isOpen, setOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setItems(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      /* ignore */
+    }
+  }, [items, hydrated]);
+
+  const addItem: CartContextValue["addItem"] = useCallback((item) => {
+    const qty = item.quantity ?? 1;
+    setItems((current) => {
+      const idx = current.findIndex((c) => keyOf(c) === keyOf(item));
+      if (idx > -1) {
+        const next = [...current];
+        next[idx] = { ...next[idx], quantity: next[idx].quantity + qty };
+        return next;
+      }
+      return [...current, { ...item, quantity: qty }];
+    });
+    setOpen(true);
+  }, []);
+
+  const removeItem: CartContextValue["removeItem"] = useCallback(
+    (slug, size, color) => {
+      setItems((c) => c.filter((i) => keyOf(i) !== keyOf({ slug, size, color })));
+    },
+    [],
+  );
+
+  const updateQuantity: CartContextValue["updateQuantity"] = useCallback(
+    (slug, size, color, quantity) => {
+      if (quantity <= 0) {
+        removeItem(slug, size, color);
+        return;
+      }
+      setItems((c) =>
+        c.map((i) => (keyOf(i) === keyOf({ slug, size, color }) ? { ...i, quantity } : i)),
+      );
+    },
+    [removeItem],
+  );
+
+  const clear = useCallback(() => setItems([]), []);
+
+  const value = useMemo<CartContextValue>(() => {
+    const itemCount = items.reduce((n, i) => n + i.quantity, 0);
+    const subtotal = items.reduce((n, i) => n + i.price * i.quantity, 0);
+    return { items, itemCount, subtotal, isOpen, setOpen, addItem, removeItem, updateQuantity, clear };
+  }, [items, isOpen, addItem, removeItem, updateQuantity, clear]);
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+export function useCart() {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart must be used within CartProvider");
+  return ctx;
+}
+
+export const formatPrice = (n: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n);
