@@ -93,12 +93,12 @@ function CartPage() {
                   <Row label="Total" value={formatPrice(total)} bold />
                 </div>
               </dl>
-              <button
-                onClick={() => alert("Checkout will be wired to Stripe in the next step.")}
-                className="w-full bg-foreground text-background eyebrow py-4 hover:bg-foreground/90 transition-colors"
+              <Link
+                to="/checkout"
+                className="block w-full text-center bg-foreground text-background eyebrow py-4 hover:bg-foreground/90 transition-colors"
               >
                 Proceed to Checkout
-              </button>
+              </Link>
               <p className="text-[11px] text-foreground/50 leading-relaxed">
                 Free shipping on orders over {formatPrice(150)}. Taxes calculated at checkout.
               </p>
