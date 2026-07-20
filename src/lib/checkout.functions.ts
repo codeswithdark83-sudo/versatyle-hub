@@ -52,7 +52,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       const p = catalog.get(i.slug);
       if (!p) throw new Error(`Unknown product: ${i.slug}`);
       subtotalUnits += p.price * i.quantity;
-      return { slug: i.slug, name: p.name, price: p.price, ...i };
+      return { ...i, name: p.name, price: p.price };
     });
     const shippingUnits = subtotalUnits >= 150 ? 0 : 15;
     const taxUnits = Math.round(subtotalUnits * 0.08 * 100) / 100;
