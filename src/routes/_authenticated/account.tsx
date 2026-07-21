@@ -19,6 +19,12 @@ function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const checkFn = useServerFn(checkIsAdmin);
+  const { data: adminCheck } = useQuery({
+    queryKey: ["admin", "check"],
+    queryFn: () => checkFn({}),
+    retry: false,
+  });
 
   useEffect(() => {
     if (!user) return;
