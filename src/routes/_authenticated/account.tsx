@@ -57,8 +57,15 @@ function AccountPage() {
       <p className="eyebrow text-foreground/50">Account</p>
       <h1 className="mt-3 font-serif text-4xl">My profile</h1>
       <p className="mt-2 text-sm text-foreground/60">{user?.email}</p>
+      {adminCheck?.isAdmin && (
+        <Link
+          to="/admin"
+          className="mt-4 inline-block eyebrow border-b border-foreground pb-1"
+        >
+          Open admin dashboard →
+        </Link>
+      )}
 
-      {loading ? (
         <p className="mt-10 text-sm text-foreground/50">Loading…</p>
       ) : (
         <form onSubmit={save} className="mt-10 space-y-5">
