@@ -1,7 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { checkIsAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — Versatile" }] }),
@@ -16,6 +19,12 @@ function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const checkFn = useServerFn(checkIsAdmin);
+  const { data: adminCheck } = useQuery({
+    queryKey: ["admin", "check"],
+    queryFn: () => checkFn({}),
+    retry: false,
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -48,6 +57,14 @@ function AccountPage() {
       <p className="eyebrow text-foreground/50">Account</p>
       <h1 className="mt-3 font-serif text-4xl">My profile</h1>
       <p className="mt-2 text-sm text-foreground/60">{user?.email}</p>
+      {adminCheck?.isAdmin && (
+        <Link
+          to="/admin"
+          className="mt-4 inline-block eyebrow border-b border-foreground pb-1"
+        >
+          Open admin dashboard →
+        </Link>
+      )}
 
       {loading ? (
         <p className="mt-10 text-sm text-foreground/50">Loading…</p>
