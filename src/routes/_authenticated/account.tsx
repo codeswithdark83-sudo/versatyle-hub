@@ -66,6 +66,7 @@ function AccountPage() {
         </Link>
       )}
 
+      {loading ? (
         <p className="mt-10 text-sm text-foreground/50">Loading…</p>
       ) : (
         <form onSubmit={save} className="mt-10 space-y-5">
