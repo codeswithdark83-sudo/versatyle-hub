@@ -9,7 +9,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
       params={{ slug: product.slug }}
       className="group block"
     >
-      <div className="aspect-[3/4] bg-brand-muted overflow-hidden mb-4 outline outline-1 -outline-offset-1 outline-black/5">
+      <div className="aspect-[3/4] bg-muted overflow-hidden mb-4 outline outline-1 -outline-offset-1 outline-border">
         <img
           src={product.image}
           alt={product.name}

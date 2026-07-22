@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Search, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const CATEGORIES = [
   { label: "Men", to: "/shop", params: { category: "men" } },
@@ -44,6 +45,7 @@ export function Nav() {
           >
             <Search className="size-4" strokeWidth={1.5} />
           </button>
+          <ThemeToggle />
           <Link
             to={session ? "/account" : "/auth"}
             search={session ? undefined : { mode: "signin" }}
