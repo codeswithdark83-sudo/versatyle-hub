@@ -11,69 +11,126 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const newArrivals = products.slice(0, 4);
+  const zigzag = [
+    {
+      no: "01",
+      eyebrow: "Chapter One — Outerwear",
+      title: "The Winter Edit",
+      body: "Structured wool, considered proportion. A quiet study in warmth built for the long walk home.",
+      image: collectionMen,
+      to: "/shop",
+      search: { category: "men" },
+    },
+    {
+      no: "02",
+      eyebrow: "Chapter Two — Silhouette",
+      title: "Fluid Lines",
+      body: "Drape, weight, and movement. Pieces cut to fall, not to force — for a wardrobe that breathes.",
+      image: collectionWomen,
+      to: "/shop",
+      search: { category: "women" },
+    },
+    {
+      no: "03",
+      eyebrow: "Chapter Three — Everyday",
+      title: "Considered Basics",
+      body: "The building blocks. Fabrics chosen for how they age, cuts drawn for how they live.",
+      image: hero,
+      to: "/shop",
+    },
+  ];
+
   return (
     <>
-      {/* HERO */}
-      <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden">
-        <img
-          src={hero}
-          alt="Model in a minimalist beige wool coat against a concrete wall"
-          width={1920}
-          height={1200}
-          className="absolute inset-0 w-full h-full object-cover animate-ken-burns"
-        />
-        <div className="absolute inset-0 bg-black/25" />
-        <div className="relative h-full flex flex-col items-center justify-center text-center px-6 text-brand-offwhite">
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl italic leading-[1.05] mb-6 animate-fade-up">
-            Wear Your Style
-          </h1>
-          <p className="eyebrow text-brand-offwhite/85 mb-10 animate-fade-up [animation-delay:120ms]">
-            Curated essentials for the modern silhouette
-          </p>
-          <Link
-            to="/shop"
-            className="animate-fade-up [animation-delay:240ms] bg-brand-offwhite text-brand-charcoal eyebrow px-10 py-4 hover:bg-accent hover:text-brand-charcoal transition-colors duration-500"
-          >
-            Shop the Collection
-          </Link>
+      {/* HERO — editorial split */}
+      <section className="relative border-b border-border">
+        <div className="max-w-[1440px] mx-auto grid md:grid-cols-12 gap-8 md:gap-12 px-6 md:px-10 pt-20 md:pt-28 pb-16 md:pb-24">
+          <div className="md:col-span-6 flex flex-col justify-center order-2 md:order-1 animate-fade-up">
+            <p className="eyebrow text-foreground/60 mb-8">Autumn / Winter — Volume 07</p>
+            <h1 className="font-serif text-6xl md:text-7xl lg:text-[8.5rem] leading-[0.92] tracking-tight mb-8">
+              Wear
+              <br />
+              your <span className="italic font-light">style</span>.
+            </h1>
+            <p className="max-w-md text-base md:text-lg text-foreground/70 leading-relaxed mb-10">
+              A quiet manifesto in cloth and cut. Versatile is a study of the modern wardrobe — considered, unhurried, made to last.
+            </p>
+            <div className="flex items-center gap-8">
+              <Link
+                to="/shop"
+                className="eyebrow bg-foreground text-background px-8 py-4 hover:bg-foreground/85 transition-colors"
+              >
+                Shop the Collection
+              </Link>
+              <Link to="/shop" className="eyebrow link-underline pb-1">
+                The Journal →
+              </Link>
+            </div>
+          </div>
+          <div className="md:col-span-6 order-1 md:order-2 relative animate-fade-in-slow">
+            <div className="aspect-[4/5] overflow-hidden bg-muted">
+              <img
+                src={hero}
+                alt="Model in a minimalist wool coat"
+                width={1200}
+                height={1500}
+                className="w-full h-full object-cover animate-ken-burns"
+              />
+            </div>
+            <div className="hidden md:flex absolute -left-6 top-6 flex-col gap-2 items-start">
+              <span className="eyebrow text-foreground/60 [writing-mode:vertical-rl] rotate-180">
+                Est. Versatile — MMXXV
+              </span>
+            </div>
+            <div className="absolute -bottom-4 right-4 bg-background px-4 py-2 border border-border">
+              <p className="eyebrow">N° 001 / Coat</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Marquee ticker */}
+        <div className="border-t border-border py-4 overflow-hidden bg-background">
+          <div className="flex gap-16 whitespace-nowrap eyebrow text-foreground/50">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="flex gap-16 shrink-0">
+                <span>Free shipping over ₹4,000</span>
+                <span>·</span>
+                <span>30-day returns</span>
+                <span>·</span>
+                <span>Crafted in limited runs</span>
+                <span>·</span>
+                <span>New arrivals every Friday</span>
+                <span>·</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* FEATURED COLLECTIONS */}
-      <section className="py-24 md:py-32 px-6">
-        <div className="max-w-[1440px] mx-auto grid md:grid-cols-2 gap-12 md:gap-16">
-          <CollectionCard
-            title="The Winter Edit"
-            eyebrow="Explore Men's Basics"
-            image={collectionMen}
-            to="/shop"
-            search={{ category: "men" }}
-          />
-          <div className="md:mt-24">
-            <CollectionCard
-              title="Fluid Silhouettes"
-              eyebrow="Explore Women's Essentials"
-              image={collectionWomen}
-              to="/shop"
-              search={{ category: "women" }}
-            />
-          </div>
+      {/* ZIGZAG CHAPTERS */}
+      <section className="py-24 md:py-32 px-6 md:px-10">
+        <div className="max-w-[1280px] mx-auto space-y-24 md:space-y-40">
+          {zigzag.map((c, i) => (
+            <ZigRow key={c.no} chapter={c} reverse={i % 2 === 1} />
+          ))}
         </div>
       </section>
 
       {/* NEW ARRIVALS */}
-      <section className="py-24 bg-card">
-        <div className="max-w-[1440px] mx-auto px-6">
-          <div className="flex justify-between items-end mb-12">
-            <h2 className="text-4xl md:text-5xl">New Arrivals</h2>
-            <Link
-              to="/shop"
-              className="eyebrow border-b border-foreground pb-1 hover:text-accent-foreground/70"
-            >
-              View All
+      <section className="py-24 md:py-28 border-t border-border">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+            <div>
+              <p className="eyebrow text-foreground/60 mb-4">Just In</p>
+              <h2 className="font-serif text-5xl md:text-6xl leading-[0.95]">
+                New <span className="italic">Arrivals</span>
+              </h2>
+            </div>
+            <Link to="/shop" className="eyebrow link-underline pb-1 self-start md:self-auto">
+              View all pieces →
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 md:gap-x-8 gap-y-12">
             {newArrivals.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
@@ -81,40 +138,50 @@ function Home() {
         </div>
       </section>
 
-      {/* SALE BANNER */}
-      <section className="py-24 bg-accent/20">
-        <div className="max-w-3xl mx-auto text-center px-6">
-          <p className="eyebrow mb-4">Seasonal Archive</p>
-          <h2 className="text-4xl md:text-5xl mb-8">Up to 40% Off Essentials</h2>
+      {/* MANIFESTO / TESTIMONIAL */}
+      <section className="py-32 md:py-40 border-t border-border bg-card">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 grid md:grid-cols-12 gap-8">
+          <p className="eyebrow md:col-span-3 text-foreground/60">A note from the atelier</p>
+          <div className="md:col-span-9">
+            <blockquote className="font-serif text-3xl md:text-5xl leading-[1.15] tracking-tight">
+              We design in the space between what a garment is and what it becomes.
+              <span className="italic text-foreground/70"> Cloth, gesture, patience — the ordinary made deliberate.</span>
+            </blockquote>
+            <div className="mt-10 flex items-center gap-4">
+              <span className="w-10 h-px bg-foreground/30" />
+              <span className="eyebrow">Elena V. — Creative Director</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SALE STRIP */}
+      <section className="py-20 border-t border-border">
+        <div className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div>
+            <p className="eyebrow text-foreground/60 mb-2">Seasonal Archive</p>
+            <h2 className="font-serif text-4xl md:text-5xl leading-tight">
+              Up to <span className="italic">40% off</span> essentials.
+            </h2>
+          </div>
           <Link
             to="/shop"
-            className="inline-block bg-foreground text-background eyebrow px-12 py-4 hover:scale-[1.03] transition-transform duration-500"
+            className="eyebrow bg-foreground text-background px-10 py-4 hover:bg-foreground/85 transition-colors"
           >
             Shop the Sale
           </Link>
         </div>
       </section>
 
-      {/* TESTIMONIAL */}
-      <section className="py-32 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <blockquote className="font-serif italic text-2xl md:text-3xl leading-[1.4] text-foreground/85 mb-8">
-            &ldquo;The quality of the fabrics and the precision of the cuts are unmatched. Versatile has become the backbone of my everyday wardrobe.&rdquo;
-          </blockquote>
-          <div className="flex items-center justify-center gap-4">
-            <span className="w-8 h-px bg-foreground/25" />
-            <span className="eyebrow">Elena V. — Creative Director</span>
-            <span className="w-8 h-px bg-foreground/25" />
-          </div>
-        </div>
-      </section>
-
       {/* NEWSLETTER */}
       <section className="py-24 border-t border-border">
-        <div className="max-w-xl mx-auto px-6 text-center">
-          <h2 className="text-3xl mb-3">Join the Circle</h2>
+        <div className="max-w-2xl mx-auto px-6 text-center">
+          <p className="eyebrow text-foreground/60 mb-4">The Circle</p>
+          <h2 className="font-serif text-4xl md:text-5xl mb-4">
+            Correspondence, <span className="italic">quietly</span>.
+          </h2>
           <p className="text-sm text-foreground/60 mb-10">
-            Early access to collections and exclusive editorial content.
+            Occasional letters on new pieces, editorial notes, and private previews.
           </p>
           <form
             className="flex flex-col md:flex-row gap-4"
@@ -128,7 +195,7 @@ function Home() {
               name="email"
               required
               placeholder="Your email address"
-              className="flex-1 bg-transparent border-b border-foreground/20 py-3 px-2 text-sm focus:outline-none focus:border-foreground transition-colors"
+              className="flex-1 bg-transparent border-b border-foreground/25 py-3 px-2 text-sm focus:outline-none focus:border-foreground transition-colors"
             />
             <button
               type="submit"
@@ -143,33 +210,67 @@ function Home() {
   );
 }
 
-function CollectionCard({
-  title,
-  eyebrow,
-  image,
-  to,
-  search,
+function ZigRow({
+  chapter,
+  reverse,
 }: {
-  title: string;
-  eyebrow: string;
-  image: string;
-  to: string;
-  search?: Record<string, string>;
+  chapter: {
+    no: string;
+    eyebrow: string;
+    title: string;
+    body: string;
+    image: string;
+    to: string;
+    search?: Record<string, string>;
+  };
+  reverse: boolean;
 }) {
   return (
-    <Link to={to} search={search} className="group block">
-      <div className="aspect-[4/5] bg-brand-muted overflow-hidden mb-6 outline outline-1 -outline-offset-1 outline-black/5">
-        <img
-          src={image}
-          alt={title}
-          width={1200}
-          height={1500}
-          loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-        />
+    <div className="grid md:grid-cols-12 gap-8 md:gap-16 items-center">
+      <div
+        className={`md:col-span-7 ${reverse ? "md:order-2" : ""}`}
+      >
+        <Link to={chapter.to} search={chapter.search} className="group block relative">
+          <div className="aspect-[5/6] overflow-hidden bg-muted">
+            <img
+              src={chapter.image}
+              alt={chapter.title}
+              width={1200}
+              height={1440}
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.045]"
+            />
+          </div>
+          <span className="absolute top-4 left-4 eyebrow bg-background/90 backdrop-blur px-3 py-1.5">
+            {chapter.no}
+          </span>
+        </Link>
       </div>
-      <h3 className="font-serif text-2xl md:text-3xl mb-2">{title}</h3>
-      <p className="eyebrow text-foreground/60 !font-medium">{eyebrow}</p>
-    </Link>
+      <div className={`md:col-span-5 ${reverse ? "md:order-1 md:pr-8" : "md:pl-8"}`}>
+        <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
+        <h3 className="font-serif text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6">
+          {chapter.title.split(" ").map((w, i) =>
+            i === chapter.title.split(" ").length - 1 ? (
+              <span key={i} className="italic font-light">
+                {" "}
+                {w}
+              </span>
+            ) : i === 0 ? (
+              <span key={i}>{w}</span>
+            ) : (
+              <span key={i}> {w}</span>
+            ),
+          )}
+        </h3>
+        <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
+        <Link
+          to={chapter.to}
+          search={chapter.search}
+          className="eyebrow link-underline pb-1 inline-block"
+        >
+          Explore the edit →
+        </Link>
+      </div>
+    </div>
   );
 }
