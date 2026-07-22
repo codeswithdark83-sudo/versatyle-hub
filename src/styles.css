@@ -2,7 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 /*
  * VERSATILE — Modern Minimalist Luxe
@@ -75,6 +75,41 @@
   --border: oklch(0.20 0 0 / 0.08);
   --input: oklch(0.20 0 0 / 0.12);
   --ring: var(--brand-sand);
+}
+
+.dark {
+  /* Dark brand palette — cinematic charcoal, warm sand accent retained */
+  --brand-charcoal: oklch(0.965 0.003 106);   /* now the "text" color */
+  --brand-offwhite: oklch(0.14 0.003 260);    /* now the "surface" color */
+  --brand-muted: oklch(0.22 0.004 260);
+  --brand-sand: oklch(0.78 0.045 82);
+
+  --background: oklch(0.12 0.004 260);
+  --foreground: oklch(0.965 0.003 106);
+  --card: oklch(0.16 0.004 260);
+  --card-foreground: oklch(0.965 0.003 106);
+  --popover: oklch(0.16 0.004 260);
+  --popover-foreground: oklch(0.965 0.003 106);
+  --primary: oklch(0.965 0.003 106);
+  --primary-foreground: oklch(0.14 0.004 260);
+  --secondary: oklch(0.22 0.004 260);
+  --secondary-foreground: oklch(0.965 0.003 106);
+  --muted: oklch(0.20 0.004 260);
+  --muted-foreground: oklch(0.68 0.005 260);
+  --accent: var(--brand-sand);
+  --accent-foreground: oklch(0.14 0.004 260);
+  --destructive: oklch(0.62 0.22 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 0.10);
+  --input: oklch(1 0 0 / 0.14);
+  --ring: var(--brand-sand);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
 }
 
 @layer base {
