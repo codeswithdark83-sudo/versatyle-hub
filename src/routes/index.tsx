@@ -62,7 +62,7 @@ function Home() {
       </section>
 
       {/* NEW ARRIVALS */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-card">
         <div className="max-w-[1440px] mx-auto px-6">
           <div className="flex justify-between items-end mb-12">
             <h2 className="text-4xl md:text-5xl">New Arrivals</h2>
