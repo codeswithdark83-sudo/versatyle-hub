@@ -322,6 +322,16 @@ function CheckoutPage() {
               value={form.phone}
               onChange={(v) => setForm({ ...form, phone: v })}
             />
+            {user && !selectedAddressId && (
+              <label className="flex items-center gap-2 text-sm text-foreground/70 pt-2">
+                <input
+                  type="checkbox"
+                  checked={saveAddress}
+                  onChange={(e) => setSaveAddress(e.target.checked)}
+                />
+                Save this address for future orders
+              </label>
+            )}
           </section>
         </div>
 
