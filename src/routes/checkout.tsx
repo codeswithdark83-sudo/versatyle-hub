@@ -142,6 +142,21 @@ function CheckoutPage() {
         },
       });
 
+      if (user && saveAddress && !selectedAddressId) {
+        await supabase.from("addresses").insert({
+          user_id: user.id,
+          full_name: form.fullName,
+          phone: form.phone,
+          line1: form.line1,
+          line2: form.line2 || null,
+          city: form.city,
+          state: form.state,
+          postal_code: form.postalCode,
+          country: form.country,
+          is_default: addresses.length === 0,
+        });
+      }
+
       // Fallback key (Razorpay key id is public/publishable).
       const cfg = order.keyId
         ? { keyId: order.keyId }
