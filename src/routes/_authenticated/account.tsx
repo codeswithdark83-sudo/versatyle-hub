@@ -109,6 +109,8 @@ function AccountPage() {
           </div>
         </form>
       )}
+
+      {user && <AddressBook userId={user.id} />}
     </div>
   );
 }
