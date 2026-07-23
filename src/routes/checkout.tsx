@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatPrice, useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { useAddresses, type Address } from "@/components/AddressBook";
 import {
   createRazorpayOrder,
   getRazorpayPublicConfig,
@@ -72,12 +74,38 @@ function CheckoutPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const { addresses } = useAddresses(user?.id);
 
   useEffect(() => {
     if (user?.email && !form.email) {
       setForm((f) => ({ ...f, email: user.email as string }));
     }
   }, [user, form.email]);
+
+  useEffect(() => {
+    if (!selectedAddressId && addresses.length > 0) {
+      const def = addresses.find((a) => a.is_default) ?? addresses[0];
+      applyAddress(def);
+      setSelectedAddressId(def.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addresses]);
+
+  function applyAddress(a: Address) {
+    setForm((f) => ({
+      ...f,
+      fullName: a.full_name,
+      line1: a.line1,
+      line2: a.line2 ?? "",
+      city: a.city,
+      state: a.state,
+      postalCode: a.postal_code,
+      country: a.country,
+      phone: a.phone,
+    }));
+  }
 
   const shipping = items.length === 0 || subtotal >= 150 ? 0 : 15;
   const tax = Math.round(subtotal * 0.08 * 100) / 100;
@@ -113,6 +141,21 @@ function CheckoutPage() {
           },
         },
       });
+
+      if (user && saveAddress && !selectedAddressId) {
+        await supabase.from("addresses").insert({
+          user_id: user.id,
+          full_name: form.fullName,
+          phone: form.phone,
+          line1: form.line1,
+          line2: form.line2 || null,
+          city: form.city,
+          state: form.state,
+          postal_code: form.postalCode,
+          country: form.country,
+          is_default: addresses.length === 0,
+        });
+      }
 
       // Fallback key (Razorpay key id is public/publishable).
       const cfg = order.keyId
@@ -188,6 +231,48 @@ function CheckoutPage() {
 
           <section className="space-y-4">
             <h2 className="font-serif text-2xl">Shipping Address</h2>
+            {user && addresses.length > 0 && (
+              <div className="border border-border p-4 space-y-3">
+                <p className="eyebrow text-foreground/60">Use a saved address</p>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {addresses.map((a) => (
+                    <label
+                      key={a.id}
+                      className={`border p-3 cursor-pointer text-sm ${selectedAddressId === a.id ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="savedAddress"
+                        className="sr-only"
+                        checked={selectedAddressId === a.id}
+                        onChange={() => {
+                          setSelectedAddressId(a.id);
+                          applyAddress(a);
+                        }}
+                      />
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium">{a.full_name}</span>
+                        {a.is_default && (
+                          <span className="eyebrow text-[10px] border border-foreground px-1.5">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-foreground/70">
+                        {a.line1}, {a.city}, {a.state} {a.postal_code}
+                      </p>
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAddressId("")}
+                    className={`border p-3 text-sm text-left ${selectedAddressId === "" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+                  >
+                    + Use a new address
+                  </button>
+                </div>
+              </div>
+            )}
             <Field
               label="Full name"
               required
@@ -237,6 +322,16 @@ function CheckoutPage() {
               value={form.phone}
               onChange={(v) => setForm({ ...form, phone: v })}
             />
+            {user && !selectedAddressId && (
+              <label className="flex items-center gap-2 text-sm text-foreground/70 pt-2">
+                <input
+                  type="checkbox"
+                  checked={saveAddress}
+                  onChange={(e) => setSaveAddress(e.target.checked)}
+                />
+                Save this address for future orders
+              </label>
+            )}
           </section>
         </div>
 

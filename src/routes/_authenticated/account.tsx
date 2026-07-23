@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { checkIsAdmin } from "@/lib/admin.functions";
+import { AddressBook } from "@/components/AddressBook";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — Versatile" }] }),
@@ -108,6 +109,8 @@ function AccountPage() {
           </div>
         </form>
       )}
+
+      {user && <AddressBook userId={user.id} />}
     </div>
   );
 }
