@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatPrice, useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
+import { useAddresses, type Address } from "@/components/AddressBook";
 import {
   createRazorpayOrder,
   getRazorpayPublicConfig,
@@ -72,12 +74,38 @@ function CheckoutPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(true);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
+  const { addresses } = useAddresses(user?.id);
 
   useEffect(() => {
     if (user?.email && !form.email) {
       setForm((f) => ({ ...f, email: user.email as string }));
     }
   }, [user, form.email]);
+
+  useEffect(() => {
+    if (!selectedAddressId && addresses.length > 0) {
+      const def = addresses.find((a) => a.is_default) ?? addresses[0];
+      applyAddress(def);
+      setSelectedAddressId(def.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addresses]);
+
+  function applyAddress(a: Address) {
+    setForm((f) => ({
+      ...f,
+      fullName: a.full_name,
+      line1: a.line1,
+      line2: a.line2 ?? "",
+      city: a.city,
+      state: a.state,
+      postalCode: a.postal_code,
+      country: a.country,
+      phone: a.phone,
+    }));
+  }
 
   const shipping = items.length === 0 || subtotal >= 150 ? 0 : 15;
   const tax = Math.round(subtotal * 0.08 * 100) / 100;
