@@ -231,6 +231,48 @@ function CheckoutPage() {
 
           <section className="space-y-4">
             <h2 className="font-serif text-2xl">Shipping Address</h2>
+            {user && addresses.length > 0 && (
+              <div className="border border-border p-4 space-y-3">
+                <p className="eyebrow text-foreground/60">Use a saved address</p>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {addresses.map((a) => (
+                    <label
+                      key={a.id}
+                      className={`border p-3 cursor-pointer text-sm ${selectedAddressId === a.id ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="savedAddress"
+                        className="sr-only"
+                        checked={selectedAddressId === a.id}
+                        onChange={() => {
+                          setSelectedAddressId(a.id);
+                          applyAddress(a);
+                        }}
+                      />
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium">{a.full_name}</span>
+                        {a.is_default && (
+                          <span className="eyebrow text-[10px] border border-foreground px-1.5">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-foreground/70">
+                        {a.line1}, {a.city}, {a.state} {a.postal_code}
+                      </p>
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAddressId("")}
+                    className={`border p-3 text-sm text-left ${selectedAddressId === "" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+                  >
+                    + Use a new address
+                  </button>
+                </div>
+              </div>
+            )}
             <Field
               label="Full name"
               required
