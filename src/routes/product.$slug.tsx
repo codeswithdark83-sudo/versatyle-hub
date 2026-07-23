@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { getProduct, products } from "@/data/products";
 import { ProductCard } from "@/components/ProductCard";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import { formatPrice, useCart } from "@/lib/cart";
 import { Heart, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 
@@ -165,6 +166,8 @@ function ProductPage() {
           </dl>
         </div>
       </section>
+
+      <ReviewsSection productSlug={product.slug} />
 
       <section className="max-w-[1440px] mx-auto px-6 py-24 border-t border-border">
         <h2 className="text-3xl md:text-4xl mb-10">You may also like</h2>
