@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { AddressBook } from "@/components/AddressBook";
+import { OrderHistory } from "@/components/OrderHistory";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — Versatile" }] }),
@@ -109,6 +110,8 @@ function AccountPage() {
           </div>
         </form>
       )}
+
+      <OrderHistory />
 
       {user && <AddressBook userId={user.id} />}
     </div>
