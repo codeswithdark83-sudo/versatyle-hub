@@ -111,6 +111,8 @@ function AccountPage() {
         </form>
       )}
 
+      <OrderHistory />
+
       {user && <AddressBook userId={user.id} />}
     </div>
   );
