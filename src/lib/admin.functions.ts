@@ -33,7 +33,7 @@ export const getAdminStats = createServerFn({ method: "GET" })
 
     const { data: orders } = await supabaseAdmin
       .from("orders")
-      .select("id, amount_cents, status, created_at, user_id, email");
+      .select("id, amount_cents, status, fulfillment_status, created_at, user_id, email");
     const list = orders ?? [];
     const paid = list.filter((o) => o.status === "paid");
     const revenue = paid.reduce((s, o) => s + (o.amount_cents ?? 0), 0);
@@ -68,6 +68,12 @@ export const getAdminStats = createServerFn({ method: "GET" })
       return acc;
     }, {});
 
+    const fulfillmentBreakdown = list.reduce<Record<string, number>>((acc, o) => {
+      const k = (o as { fulfillment_status?: string }).fulfillment_status ?? "pending";
+      acc[k] = (acc[k] ?? 0) + 1;
+      return acc;
+    }, {});
+
     return {
       totals: {
         revenueCents: revenue,
@@ -79,6 +85,7 @@ export const getAdminStats = createServerFn({ method: "GET" })
       },
       series: days,
       statusBreakdown,
+      fulfillmentBreakdown,
     };
   });
 
@@ -88,6 +95,19 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     z
       .object({
         status: z.enum(["all", "created", "paid", "failed", "refunded"]).default("all"),
+        fulfillment: z
+          .enum([
+            "all",
+            "pending",
+            "confirmed",
+            "packed",
+            "shipped",
+            "out_for_delivery",
+            "delivered",
+            "cancelled",
+            "returned",
+          ])
+          .default("all"),
         search: z.string().max(120).default(""),
         limit: z.number().int().min(1).max(200).default(100),
       })
@@ -99,16 +119,28 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     let q = supabaseAdmin
       .from("orders")
       .select(
-        "id, email, amount_cents, currency, status, razorpay_order_id, razorpay_payment_id, items, shipping_address, user_id, created_at, updated_at",
+        "id, email, amount_cents, currency, status, fulfillment_status, carrier, tracking_number, tracking_url, estimated_delivery, admin_note, shipped_at, delivered_at, razorpay_order_id, razorpay_payment_id, items, shipping_address, user_id, created_at, updated_at",
       )
       .order("created_at", { ascending: false })
       .limit(data.limit);
     if (data.status !== "all") q = q.eq("status", data.status);
+    if (data.fulfillment !== "all") q = q.eq("fulfillment_status", data.fulfillment);
     if (data.search) q = q.ilike("email", `%${data.search}%`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+const fulfillmentEnum = z.enum([
+  "pending",
+  "confirmed",
+  "packed",
+  "shipped",
+  "out_for_delivery",
+  "delivered",
+  "cancelled",
+  "returned",
+]);
 
 export const updateOrderStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -116,19 +148,79 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
     z
       .object({
         orderId: z.string().uuid(),
-        status: z.enum(["created", "paid", "failed", "refunded"]),
+        status: z.enum(["created", "paid", "failed", "refunded"]).optional(),
+        fulfillmentStatus: fulfillmentEnum.optional(),
+        carrier: z.string().max(80).nullish(),
+        trackingNumber: z.string().max(120).nullish(),
+        trackingUrl: z.string().url().max(500).nullish().or(z.literal("")),
+        estimatedDelivery: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish().or(z.literal("")),
+        adminNote: z.string().max(1000).nullish(),
       })
       .parse(d),
   )
   .handler(async ({ context, data }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("orders")
-      .update({ status: data.status })
-      .eq("id", data.orderId);
+
+    const patch: Record<string, unknown> = {};
+    if (data.status !== undefined) patch.status = data.status;
+    if (data.fulfillmentStatus !== undefined) {
+      patch.fulfillment_status = data.fulfillmentStatus;
+      if (data.fulfillmentStatus === "shipped" || data.fulfillmentStatus === "out_for_delivery") {
+        patch.shipped_at = new Date().toISOString();
+      }
+      if (data.fulfillmentStatus === "delivered") {
+        patch.delivered_at = new Date().toISOString();
+        patch.shipped_at = patch.shipped_at ?? new Date().toISOString();
+      }
+    }
+    if (data.carrier !== undefined) patch.carrier = data.carrier || null;
+    if (data.trackingNumber !== undefined) patch.tracking_number = data.trackingNumber || null;
+    if (data.trackingUrl !== undefined) patch.tracking_url = data.trackingUrl || null;
+    if (data.estimatedDelivery !== undefined)
+      patch.estimated_delivery = data.estimatedDelivery || null;
+    if (data.adminNote !== undefined) patch.admin_note = data.adminNote || null;
+
+    if (Object.keys(patch).length === 0) return { ok: true };
+
+    const { error } = await supabaseAdmin.from("orders").update(patch).eq("id", data.orderId);
     if (error) throw new Error(error.message);
+
+    const { error: evErr } = await supabaseAdmin.from("order_events").insert({
+      order_id: data.orderId,
+      actor_id: context.userId,
+      event_type: "admin_update",
+      fulfillment_status: data.fulfillmentStatus ?? null,
+      payment_status: data.status ?? null,
+      note:
+        data.adminNote ??
+        [
+          data.status ? `payment: ${data.status}` : null,
+          data.fulfillmentStatus ? `stage: ${data.fulfillmentStatus}` : null,
+          data.trackingNumber ? `tracking: ${data.trackingNumber}` : null,
+        ]
+          .filter(Boolean)
+          .join(" · ") || null,
+    });
+    if (evErr) console.error("order_events insert failed", evErr);
+
     return { ok: true };
+  });
+
+export const listOrderEvents = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ orderId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
+      .from("order_events")
+      .select("id, event_type, fulfillment_status, payment_status, note, created_at")
+      .eq("order_id", data.orderId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
   });
 
 export const listAdminCustomers = createServerFn({ method: "GET" })
