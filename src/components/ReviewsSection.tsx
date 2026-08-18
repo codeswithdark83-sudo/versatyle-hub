@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getReviewAuthorNames } from "@/lib/reviews.functions";
+
 import { Star, Upload, X, Play } from "lucide-react";
 
 type ReviewMedia = { path: string; type: "image" | "video" };
