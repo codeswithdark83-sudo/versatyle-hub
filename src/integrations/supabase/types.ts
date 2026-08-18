@@ -65,52 +65,123 @@ export type Database = {
         }
         Relationships: []
       }
+      order_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_type: string
+          fulfillment_status:
+            | Database["public"]["Enums"]["fulfillment_status"]
+            | null
+          id: string
+          note: string | null
+          order_id: string
+          payment_status: Database["public"]["Enums"]["order_status"] | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_type: string
+          fulfillment_status?:
+            | Database["public"]["Enums"]["fulfillment_status"]
+            | null
+          id?: string
+          note?: string | null
+          order_id: string
+          payment_status?: Database["public"]["Enums"]["order_status"] | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_type?: string
+          fulfillment_status?:
+            | Database["public"]["Enums"]["fulfillment_status"]
+            | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          payment_status?: Database["public"]["Enums"]["order_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
+          admin_note: string | null
           amount_cents: number
+          carrier: string | null
           created_at: string
           currency: string
+          delivered_at: string | null
           email: string
+          estimated_delivery: string | null
+          fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
           id: string
           items: Json
           notes: string | null
           razorpay_order_id: string | null
           razorpay_payment_id: string | null
           razorpay_signature: string | null
+          shipped_at: string | null
           shipping_address: Json | null
           status: Database["public"]["Enums"]["order_status"]
+          tracking_number: string | null
+          tracking_url: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          admin_note?: string | null
           amount_cents: number
+          carrier?: string | null
           created_at?: string
           currency?: string
+          delivered_at?: string | null
           email: string
+          estimated_delivery?: string | null
+          fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           id?: string
           items?: Json
           notes?: string | null
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
           razorpay_signature?: string | null
+          shipped_at?: string | null
           shipping_address?: Json | null
           status?: Database["public"]["Enums"]["order_status"]
+          tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          admin_note?: string | null
           amount_cents?: number
+          carrier?: string | null
           created_at?: string
           currency?: string
+          delivered_at?: string | null
           email?: string
+          estimated_delivery?: string | null
+          fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           id?: string
           items?: Json
           notes?: string | null
           razorpay_order_id?: string | null
           razorpay_payment_id?: string | null
           razorpay_signature?: string | null
+          shipped_at?: string | null
           shipping_address?: Json | null
           status?: Database["public"]["Enums"]["order_status"]
+          tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -215,6 +286,15 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      fulfillment_status:
+        | "pending"
+        | "confirmed"
+        | "packed"
+        | "shipped"
+        | "out_for_delivery"
+        | "delivered"
+        | "cancelled"
+        | "returned"
       order_status: "created" | "paid" | "failed" | "refunded"
     }
     CompositeTypes: {
@@ -344,6 +424,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      fulfillment_status: [
+        "pending",
+        "confirmed",
+        "packed",
+        "shipped",
+        "out_for_delivery",
+        "delivered",
+        "cancelled",
+        "returned",
+      ],
       order_status: ["created", "paid", "failed", "refunded"],
     },
   },
