@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Package, Check, X, RotateCcw, Clock, ChevronDown } from "lucide-react";
+import { Package, Check, X, RotateCcw, Clock, ChevronDown, Truck, Home } from "lucide-react";
 import { listMyOrders } from "@/lib/orders.functions";
 
 type Item = {
@@ -15,16 +15,29 @@ type Item = {
 };
 
 const STEPS = [
-  { key: "created", label: "Order placed", icon: Clock },
-  { key: "paid", label: "Payment confirmed", icon: Check },
+  { key: "pending", label: "Order placed", icon: Clock },
+  { key: "confirmed", label: "Payment received", icon: Check },
   { key: "packed", label: "Packed", icon: Package },
-  { key: "shipped", label: "Shipped", icon: Package },
+  { key: "shipped", label: "Shipped", icon: Truck },
+  { key: "out_for_delivery", label: "Out for delivery", icon: Truck },
+  { key: "delivered", label: "Delivered", icon: Home },
 ] as const;
 
-function stageFor(status: string) {
-  if (status === "paid") return 1; // payment confirmed, awaiting fulfilment
-  if (status === "created") return 0;
-  return -1; // failed / refunded
+const STAGE_INDEX: Record<string, number> = {
+  pending: 0,
+  confirmed: 1,
+  packed: 2,
+  shipped: 3,
+  out_for_delivery: 4,
+  delivered: 5,
+};
+
+function stageFor(status: string, fulfillment?: string | null) {
+  if (status === "failed" || status === "refunded") return -1;
+  if (fulfillment === "cancelled" || fulfillment === "returned") return -1;
+  const idx = STAGE_INDEX[fulfillment ?? "pending"];
+  if (idx !== undefined) return status === "paid" ? Math.max(idx, 1) : idx;
+  return status === "paid" ? 1 : 0;
 }
 
 function money(cents: number, currency: string) {
@@ -35,7 +48,13 @@ function money(cents: number, currency: string) {
   })}`;
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({
+  status,
+  fulfillment,
+}: {
+  status: string;
+  fulfillment?: string | null;
+}) {
   const map: Record<string, string> = {
     paid: "border-foreground text-foreground",
     created: "border-border text-foreground/60",
@@ -48,23 +67,37 @@ function StatusBadge({ status }: { status: string }) {
     failed: "Payment failed",
     refunded: "Refunded",
   };
+  const stageLabel: Record<string, string> = {
+    packed: "Packed",
+    shipped: "Shipped",
+    out_for_delivery: "Out for delivery",
+    delivered: "Delivered",
+    cancelled: "Cancelled",
+    returned: "Returned",
+  };
+  const text =
+    (fulfillment && stageLabel[fulfillment]) ?? undefined;
   return (
     <span className={`eyebrow border px-2.5 py-1 ${map[status] ?? map.created}`}>
-      {label[status] ?? status}
+      {text ?? label[status] ?? status}
     </span>
   );
 }
 
-function Tracker({ status }: { status: string }) {
-  const stage = stageFor(status);
+function Tracker({ status, fulfillment }: { status: string; fulfillment?: string | null }) {
+  const stage = stageFor(status, fulfillment);
   if (stage < 0) {
-    const Icon = status === "refunded" ? RotateCcw : X;
+    const Icon = status === "refunded" || fulfillment === "returned" ? RotateCcw : X;
     return (
       <div className="flex items-center gap-2 text-sm text-foreground/60">
         <Icon className="h-4 w-4" />
         {status === "refunded"
           ? "This order was refunded."
-          : "Payment did not go through. Nothing was charged."}
+          : fulfillment === "cancelled"
+            ? "This order was cancelled."
+            : fulfillment === "returned"
+              ? "This order was returned."
+              : "Payment did not go through. Nothing was charged."}
       </div>
     );
   }
