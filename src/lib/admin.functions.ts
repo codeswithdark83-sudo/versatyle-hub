@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase
@@ -162,7 +163,7 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const patch: Record<string, unknown> = {};
+    const patch: TablesUpdate<"orders"> = {};
     if (data.status !== undefined) patch.status = data.status;
     if (data.fulfillmentStatus !== undefined) {
       patch.fulfillment_status = data.fulfillmentStatus;
@@ -171,7 +172,7 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
       }
       if (data.fulfillmentStatus === "delivered") {
         patch.delivered_at = new Date().toISOString();
-        patch.shipped_at = patch.shipped_at ?? new Date().toISOString();
+        if (!patch.shipped_at) patch.shipped_at = new Date().toISOString();
       }
     }
     if (data.carrier !== undefined) patch.carrier = data.carrier || null;
@@ -193,14 +194,15 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
       fulfillment_status: data.fulfillmentStatus ?? null,
       payment_status: data.status ?? null,
       note:
-        data.adminNote ??
+        data.adminNote ||
         [
           data.status ? `payment: ${data.status}` : null,
           data.fulfillmentStatus ? `stage: ${data.fulfillmentStatus}` : null,
           data.trackingNumber ? `tracking: ${data.trackingNumber}` : null,
         ]
           .filter(Boolean)
-          .join(" · ") || null,
+          .join(" · ") ||
+        null,
     });
     if (evErr) console.error("order_events insert failed", evErr);
 

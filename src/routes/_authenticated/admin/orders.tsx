@@ -40,6 +40,16 @@ const FULFILMENT = [
 ] as const;
 type Fulfilment = (typeof FULFILMENT)[number];
 
+type OrderPatch = {
+  status?: "created" | "paid" | "failed" | "refunded";
+  fulfillmentStatus?: Fulfilment;
+  carrier?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  estimatedDelivery?: string;
+  adminNote?: string;
+};
+
 const FULFILMENT_LABEL: Record<Fulfilment, string> = {
   pending: "Order placed",
   confirmed: "Confirmed",
@@ -74,7 +84,7 @@ function OrdersPage() {
 
   const updateFn = useServerFn(updateOrderStatus);
   const mutation = useMutation({
-    mutationFn: (v: Parameters<typeof updateFn>[0]["data"]) => updateFn({ data: v }),
+    mutationFn: (v: OrderPatch & { orderId: string }) => updateFn({ data: v }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["admin", "orders"] });
       qc.invalidateQueries({ queryKey: ["admin", "stats"] });
@@ -229,7 +239,7 @@ function OrderEditor({
 }: {
   order: OrderRow;
   pending: boolean;
-  onSave: (patch: Record<string, unknown>) => void;
+  onSave: (patch: OrderPatch) => void;
 }) {
   const [payment, setPayment] = useState(order.status);
   const [stage, setStage] = useState<Fulfilment>(
