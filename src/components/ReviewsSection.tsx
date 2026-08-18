@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getReviewAuthorNames } from "@/lib/reviews.functions";
+
 import { Star, Upload, X, Play } from "lucide-react";
 
 type ReviewMedia = { path: string; type: "image" | "video" };
@@ -43,10 +45,16 @@ export function ReviewsSection({ productSlug }: { productSlug: string }) {
 
     const rows = (data ?? []) as Review[];
     const authorIds = Array.from(new Set(rows.map((r) => r.user_id)));
-    const { data: profs } = authorIds.length
-      ? await supabase.from("profiles").select("id, full_name").in("id", authorIds)
-      : { data: [] as { id: string; full_name: string | null }[] };
-    const nameMap = new Map(profs?.map((p) => [p.id, p.full_name]) ?? []);
+    let nameMap = new Map<string, string | null>();
+    if (authorIds.length) {
+      try {
+        const authors = await getReviewAuthorNames({ data: { userIds: authorIds } });
+        nameMap = new Map(authors.map((a) => [a.id, a.name]));
+      } catch {
+        nameMap = new Map();
+      }
+    }
+
 
     const withMedia = await Promise.all(
       rows.map(async (r) => ({
