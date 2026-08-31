@@ -16,6 +16,7 @@ import { Route as ShopRouteImport } from './routes/shop'
 import { Route as ShippingRouteImport } from './routes/shipping'
 import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as NatureInitiativeRouteImport } from './routes/nature-initiative'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CareRouteImport } from './routes/care'
@@ -64,6 +65,11 @@ const ReturnsRoute = ReturnsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NatureInitiativeRoute = NatureInitiativeRouteImport.update({
+  id: '/nature-initiative',
+  path: '/nature-initiative',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/care': typeof CareRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/nature-initiative': typeof NatureInitiativeRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/care': typeof CareRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/nature-initiative': typeof NatureInitiativeRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/care': typeof CareRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
+  '/nature-initiative': typeof NatureInitiativeRoute
   '/privacy': typeof PrivacyRoute
   '/returns': typeof ReturnsRoute
   '/shipping': typeof ShippingRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/care'
     | '/cart'
     | '/checkout'
+    | '/nature-initiative'
     | '/privacy'
     | '/returns'
     | '/shipping'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/care'
     | '/cart'
     | '/checkout'
+    | '/nature-initiative'
     | '/privacy'
     | '/returns'
     | '/shipping'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/care'
     | '/cart'
     | '/checkout'
+    | '/nature-initiative'
     | '/privacy'
     | '/returns'
     | '/shipping'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   CareRoute: typeof CareRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
+  NatureInitiativeRoute: typeof NatureInitiativeRoute
   PrivacyRoute: typeof PrivacyRoute
   ReturnsRoute: typeof ReturnsRoute
   ShippingRoute: typeof ShippingRoute
@@ -343,6 +356,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nature-initiative': {
+      id: '/nature-initiative'
+      path: '/nature-initiative'
+      fullPath: '/nature-initiative'
+      preLoaderRoute: typeof NatureInitiativeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout': {
@@ -484,6 +504,7 @@ const rootRouteChildren: RootRouteChildren = {
   CareRoute: CareRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
+  NatureInitiativeRoute: NatureInitiativeRoute,
   PrivacyRoute: PrivacyRoute,
   ReturnsRoute: ReturnsRoute,
   ShippingRoute: ShippingRoute,

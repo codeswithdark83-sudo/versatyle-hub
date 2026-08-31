@@ -22,19 +22,21 @@ export function Footer() {
         <FooterCol
           title="Support"
           links={[
-            { label: "Shipping & Returns", to: "/" },
-            { label: "Sizing Guide", to: "/" },
-            { label: "Contact", to: "/" },
+            { label: "Shipping Policy", to: "/shipping" },
+            { label: "Returns & Refunds", to: "/returns" },
+            { label: "Size & Fit Guide", to: "/size-guide" },
+            { label: "Care Instructions", to: "/care" },
           ]}
         />
         <FooterCol
-          title="Social"
+          title="Company"
           links={[
-            { label: "Instagram", to: "/" },
-            { label: "Pinterest", to: "/" },
-            { label: "TikTok", to: "/" },
+            { label: "Terms & Conditions", to: "/terms" },
+            { label: "Privacy Policy", to: "/privacy" },
+            { label: "Nature Healing Initiative", to: "/nature-initiative" },
           ]}
         />
+
       </div>
       <div className="max-w-[1440px] mx-auto pt-8 border-t border-brand-offwhite/10 flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="eyebrow text-brand-offwhite/40 !font-medium">
