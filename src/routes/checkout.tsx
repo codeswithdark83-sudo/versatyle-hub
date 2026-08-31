@@ -372,6 +372,16 @@ function CheckoutPage() {
                 {error}
               </p>
             ) : null}
+            <label className="flex gap-3 items-start text-[12px] text-foreground/70 leading-relaxed">
+              <input type="checkbox" required className="mt-0.5 accent-current" />
+              <span>
+                I agree to the{" "}
+                <Link to="/terms" className="underline underline-offset-2">Terms &amp; Conditions</Link>,{" "}
+                <Link to="/privacy" className="underline underline-offset-2">Privacy Policy</Link>,{" "}
+                <Link to="/shipping" className="underline underline-offset-2">Shipping Policy</Link> and{" "}
+                <Link to="/returns" className="underline underline-offset-2">Return &amp; Refund Policy</Link>.
+              </span>
+            </label>
             <button
               type="submit"
               disabled={submitting}
@@ -381,8 +391,10 @@ function CheckoutPage() {
             </button>
             <p className="text-[11px] text-foreground/50 leading-relaxed">
               Payments are securely processed by Razorpay. You'll be redirected
-              to a confirmation page once your payment is captured.
+              to a confirmation page once your payment is captured. Free shipping in India on
+              orders ₹499+ · 30-day returns on unworn items with tags.
             </p>
+
           </div>
         </aside>
       </form>
