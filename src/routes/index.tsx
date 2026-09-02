@@ -1,7 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import hero from "@/assets/hero.jpg";
-import collectionMen from "@/assets/collection-men.jpg";
-import collectionWomen from "@/assets/collection-women.jpg";
+import heroAsset from "@/assets/hero.jpg.asset.json";
+import collectionMenAsset from "@/assets/collection-men.jpg.asset.json";
+import collectionWomenAsset from "@/assets/collection-women.jpg.asset.json";
+
+const hero = heroAsset.url;
+const collectionMen = collectionMenAsset.url;
+const collectionWomen = collectionWomenAsset.url;
 import { ProductCard } from "@/components/ProductCard";
 import { products } from "@/data/products";
 
