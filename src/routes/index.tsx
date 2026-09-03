@@ -7,14 +7,21 @@ const hero = heroAsset.url;
 const collectionMen = collectionMenAsset.url;
 const collectionWomen = collectionWomenAsset.url;
 import { ProductCard } from "@/components/ProductCard";
-import { products } from "@/data/products";
+import { listProducts } from "@/lib/catalog.functions";
 
 export const Route = createFileRoute("/")({
+  loader: () => listProducts(),
   component: Home,
+  errorComponent: () => (
+    <div className="max-w-xl mx-auto py-32 text-center px-6">
+      <h1 className="font-serif text-3xl">Versatile</h1>
+      <p className="mt-3 text-sm text-foreground/60">The store is loading — please refresh.</p>
+    </div>
+  ),
 });
 
 function Home() {
-  const newArrivals = products.slice(0, 4);
+  const newArrivals = Route.useLoaderData().slice(0, 4);
   const zigzag = [
     {
       no: "01",
