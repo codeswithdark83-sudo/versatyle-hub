@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { ProductCard } from "@/components/ProductCard";
-import { products, productsByCategory } from "@/data/products";
+import { listProducts } from "@/lib/catalog.functions";
 
 const searchSchema = z.object({
   category: z.enum(["men", "women", "accessories", "kids", "all"]).optional(),
@@ -10,6 +10,7 @@ const searchSchema = z.object({
 
 export const Route = createFileRoute("/shop")({
   validateSearch: searchSchema,
+  loader: () => listProducts(),
   head: () => ({
     meta: [
       { title: "Shop — Versatile" },
@@ -22,15 +23,23 @@ export const Route = createFileRoute("/shop")({
     ],
   }),
   component: Shop,
+  errorComponent: () => (
+    <div className="max-w-xl mx-auto py-32 text-center px-6">
+      <h1 className="font-serif text-3xl mb-3">The collection is unavailable</h1>
+      <p className="text-foreground/60 text-sm">Please refresh in a moment.</p>
+    </div>
+  ),
 });
 
 const FILTERS = ["All", "Men", "Women", "Accessories"] as const;
 
 function Shop() {
+  const all = Route.useLoaderData();
   const { category = "all", sort = "featured" } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  let list = productsByCategory(category);
+  let list =
+    category === "all" ? all : all.filter((p) => p.category.toLowerCase() === category);
   if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
   if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
 
@@ -93,5 +102,3 @@ function Shop() {
     </div>
   );
 }
-
-export const _ALL_SLUGS = products.map((p) => p.slug);
