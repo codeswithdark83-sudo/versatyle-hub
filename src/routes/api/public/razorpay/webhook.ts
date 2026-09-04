@@ -47,14 +47,23 @@ export const Route = createFileRoute("/api/public/razorpay/webhook")({
           type === "payment.authorized" ||
           type === "order.paid"
         ) {
-          await supabaseAdmin
+          const { data: paidRows } = await supabaseAdmin
             .from("orders")
             .update({
               status: "paid",
               razorpay_payment_id: payment?.id ?? null,
               razorpay_signature: signature,
             })
-            .eq("razorpay_order_id", razorpayOrderId);
+            .eq("razorpay_order_id", razorpayOrderId)
+            .neq("status", "paid")
+            .select("id");
+          // Reduce supplier stock once, for orders that were not already paid.
+          for (const row of paidRows ?? []) {
+            const { error: stockError } = await supabaseAdmin.rpc("consume_order_stock", {
+              _order_id: row.id,
+            });
+            if (stockError) console.error("consume_order_stock failed", stockError);
+          }
         } else if (type === "payment.failed") {
           await supabaseAdmin
             .from("orders")

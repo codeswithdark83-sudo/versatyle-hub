@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
-import { products } from "@/data/products";
 
 const itemSchema = z.object({
   slug: z.string().min(1),
@@ -45,14 +44,25 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       throw new Error("Payments are not configured yet.");
     }
 
-    // Re-price server-side from the trusted product catalog.
-    const catalog = new Map(products.map((p) => [p.slug, p]));
+    // Re-price and stock-check server-side against the supplier inventory.
+    const { fetchActiveProducts } = await import("./catalog.server");
+    const catalog = new Map((await fetchActiveProducts()).map((p) => [p.slug, p]));
     let subtotalUnits = 0;
     const priced = data.items.map((i) => {
       const p = catalog.get(i.slug);
-      if (!p) throw new Error(`Unknown product: ${i.slug}`);
-      subtotalUnits += p.price * i.quantity;
-      return { ...i, name: p.name, price: p.price };
+      if (!p) throw new Error(`This piece is no longer available: ${i.slug}`);
+      const variant = p.variants.find((v) => v.size === i.size);
+      if (!variant) throw new Error(`${p.name} is no longer offered in size ${i.size}.`);
+      if (variant.stock < i.quantity) {
+        throw new Error(
+          variant.stock === 0
+            ? `${p.name} (size ${i.size}) is sold out.`
+            : `Only ${variant.stock} left of ${p.name} in size ${i.size}.`,
+        );
+      }
+      const unit = variant.price ?? p.price;
+      subtotalUnits += unit * i.quantity;
+      return { ...i, name: p.name, price: unit };
     });
     const shippingUnits = subtotalUnits >= 150 ? 0 : 15;
     const taxUnits = Math.round(subtotalUnits * 0.08 * 100) / 100;
