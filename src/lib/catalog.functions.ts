@@ -10,10 +10,7 @@ export const listProducts = createServerFn({ method: "GET" }).handler(async () =
 export const getProductBySlug = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ slug: z.string().min(1) }).parse(data))
   .handler(async ({ data }) => {
-    const { publicClient, PRODUCT_SELECT, toProduct, type ProductRow } = await import(
-      "./catalog.server"
-    ).then((m) => ({ ...m, type: undefined as never }));
-    void ProductRow;
+    const { publicClient, PRODUCT_SELECT, toProduct } = await import("./catalog.server");
     const client = publicClient();
     const { data: row, error } = await client
       .from("products")
