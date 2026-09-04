@@ -141,6 +141,7 @@ function RootComponent() {
               <Footer />
             </div>
             <CartDrawer />
+            <Toaster />
           </CartProvider>
         </AuthProvider>
       </ThemeProvider>
