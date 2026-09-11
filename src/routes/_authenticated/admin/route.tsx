@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-r
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { checkIsAdmin } from "@/lib/admin.functions";
-import { LayoutDashboard, ShoppingBag, Users, Boxes } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Users, Boxes, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — Versatile" }, { name: "robots", content: "noindex" }] }),
@@ -12,9 +12,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
 const NAV = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag, exact: false },
+  { to: "/admin/returns", label: "Returns", icon: RotateCcw, exact: false },
   { to: "/admin/inventory", label: "Inventory", icon: Boxes, exact: false },
   { to: "/admin/customers", label: "Customers", icon: Users, exact: false },
 ] as const;
+
 
 function AdminLayout() {
   const fn = useServerFn(checkIsAdmin);
