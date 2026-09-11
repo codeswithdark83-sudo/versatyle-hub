@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { Package, Check, X, RotateCcw, Clock, ChevronDown, Truck, Home } from "lucide-react";
+import { toast } from "sonner";
 import { listMyOrders } from "@/lib/orders.functions";
+import { createReturnRequest, listMyReturnRequests } from "@/lib/returns.functions";
+
 
 type Item = {
   slug: string;
@@ -140,14 +143,171 @@ function Tracker({ status, fulfillment }: { status: string; fulfillment?: string
   );
 }
 
+const RETURN_STATUS_LABEL: Record<string, string> = {
+  requested: "Awaiting review",
+  approved: "Approved",
+  rejected: "Declined",
+  pickup_scheduled: "Pickup scheduled",
+  received: "Item received",
+  refunded: "Refunded",
+  replacement_shipped: "Replacement shipped",
+  completed: "Completed",
+  cancelled: "Cancelled",
+};
+
+const REASONS = [
+  "Wrong size / fit",
+  "Not as described",
+  "Damaged or defective",
+  "Received wrong item",
+  "Changed my mind",
+  "Other",
+] as const;
+
+function ReturnPanel({
+  orderId,
+  items,
+  eligible,
+  request,
+}: {
+  orderId: string;
+  items: Item[];
+  eligible: boolean;
+  request?: { kind: string; status: string; reason: string; admin_note: string | null };
+}) {
+  const qc = useQueryClient();
+  const submitFn = useServerFn(createReturnRequest);
+  const [form, setForm] = useState(false);
+  const [kind, setKind] = useState<"return" | "replace">("return");
+  const [reason, setReason] = useState<string>(REASONS[0]);
+  const [comment, setComment] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: () =>
+      submitFn({ data: { orderId, kind, reason, comment, items } }),
+    onSuccess: () => {
+      toast.success(
+        kind === "return" ? "Return request sent" : "Replacement request sent",
+      );
+      setForm(false);
+      setComment("");
+      qc.invalidateQueries({ queryKey: ["returns", "mine"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  if (request) {
+    return (
+      <div className="border-t border-border px-5 py-4">
+        <p className="eyebrow text-foreground/50">
+          {request.kind === "return" ? "Return" : "Replacement"} ·{" "}
+          {RETURN_STATUS_LABEL[request.status] ?? request.status}
+        </p>
+        <p className="mt-1 text-sm text-foreground/70">{request.reason}</p>
+        {request.admin_note && (
+          <p className="mt-1 text-xs text-foreground/60">{request.admin_note}</p>
+        )}
+      </div>
+    );
+  }
+
+  if (!eligible) return null;
+
+  return (
+    <div className="border-t border-border px-5 py-4">
+      {!form ? (
+        <button
+          onClick={() => setForm(true)}
+          className="eyebrow inline-flex items-center gap-2 border border-border px-3 py-2 hover:border-foreground"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Return or replace
+        </button>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex gap-1 border border-border p-1 w-fit">
+            {(["return", "replace"] as const).map((k) => (
+              <button
+                key={k}
+                onClick={() => setKind(k)}
+                className={`eyebrow px-3 py-1.5 ${
+                  kind === k
+                    ? "bg-foreground text-background"
+                    : "text-foreground/60 hover:text-foreground"
+                }`}
+              >
+                {k === "return" ? "Return for refund" : "Replace item"}
+              </button>
+            ))}
+          </div>
+          <label className="block">
+            <span className="eyebrow text-foreground/50">Reason</span>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="mt-1 w-full border border-border bg-background px-3 py-2 text-sm"
+            >
+              {REASONS.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="eyebrow text-foreground/50">Anything else?</span>
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={2}
+              className="mt-1 w-full border border-border bg-transparent px-3 py-2 text-sm"
+            />
+          </label>
+          <div className="flex gap-2">
+            <button
+              disabled={mutation.isPending}
+              onClick={() => mutation.mutate()}
+              className="eyebrow bg-foreground text-background px-4 py-2.5 disabled:opacity-50"
+            >
+              {mutation.isPending ? "Sending…" : "Submit request"}
+            </button>
+            <button
+              onClick={() => setForm(false)}
+              className="eyebrow border border-border px-4 py-2.5"
+            >
+              Cancel
+            </button>
+          </div>
+          <p className="text-xs text-foreground/50">
+            Requests can be raised within 7 days of delivery. See our returns policy for
+            details.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function OrderHistory() {
   const fetchOrders = useServerFn(listMyOrders);
+  const fetchReturns = useServerFn(listMyReturnRequests);
   const [open, setOpen] = useState<string | null>(null);
   const { data, isLoading, error } = useQuery({
     queryKey: ["orders", "mine"],
     queryFn: () => fetchOrders({}),
     retry: false,
   });
+  const { data: returns } = useQuery({
+    queryKey: ["returns", "mine"],
+    queryFn: () => fetchReturns({}),
+    retry: false,
+  });
+  const requestByOrder = new Map(
+    (returns ?? [])
+      .filter((r) => r.status !== "rejected" && r.status !== "cancelled")
+      .map((r) => [r.order_id, r]),
+  );
+
 
   return (
     <section className="mt-16 border-t border-border pt-10">
