@@ -312,6 +312,65 @@ export type Database = {
         }
         Relationships: []
       }
+      return_requests: {
+        Row: {
+          admin_note: string | null
+          comment: string | null
+          created_at: string
+          email: string
+          id: string
+          items: Json
+          kind: Database["public"]["Enums"]["return_kind"]
+          order_id: string
+          reason: string
+          resolved_at: string | null
+          restocked: boolean
+          status: Database["public"]["Enums"]["return_status"]
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          comment?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          items?: Json
+          kind?: Database["public"]["Enums"]["return_kind"]
+          order_id: string
+          reason?: string
+          resolved_at?: string | null
+          restocked?: boolean
+          status?: Database["public"]["Enums"]["return_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          comment?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          items?: Json
+          kind?: Database["public"]["Enums"]["return_kind"]
+          order_id?: string
+          reason?: string
+          resolved_at?: string | null
+          restocked?: boolean
+          status?: Database["public"]["Enums"]["return_status"]
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           body: string
@@ -382,6 +441,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      restock_return_request: {
+        Args: { _request_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -395,6 +458,17 @@ export type Database = {
         | "cancelled"
         | "returned"
       order_status: "created" | "paid" | "failed" | "refunded"
+      return_kind: "return" | "replace"
+      return_status:
+        | "requested"
+        | "approved"
+        | "rejected"
+        | "pickup_scheduled"
+        | "received"
+        | "refunded"
+        | "replacement_shipped"
+        | "completed"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -534,6 +608,18 @@ export const Constants = {
         "returned",
       ],
       order_status: ["created", "paid", "failed", "refunded"],
+      return_kind: ["return", "replace"],
+      return_status: [
+        "requested",
+        "approved",
+        "rejected",
+        "pickup_scheduled",
+        "received",
+        "refunded",
+        "replacement_shipped",
+        "completed",
+        "cancelled",
+      ],
     },
   },
 } as const
