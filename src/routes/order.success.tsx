@@ -21,6 +21,7 @@ function OrderSuccessPage() {
   const { orderId } = Route.useSearch();
   const [status, setStatus] = useState<string>("created");
   const [paymentId, setPaymentId] = useState<string | null>(null);
+  const [method, setMethod] = useState<string>("razorpay");
   const [error, setError] = useState<string | null>(null);
   const attempts = useRef(0);
 
@@ -32,6 +33,8 @@ function OrderSuccessPage() {
         if (cancelled) return;
         setStatus(row.status);
         setPaymentId(row.razorpay_payment_id);
+        setMethod(row.payment_method);
+        if (row.payment_method === "cod") return;
         if (row.status === "paid" || row.status === "failed") return;
         if (attempts.current++ < 20) {
           setTimeout(poll, 1500);
@@ -53,6 +56,21 @@ function OrderSuccessPage() {
         <>
           <h1 className="font-serif text-4xl mb-3">Something went wrong</h1>
           <p className="text-foreground/60 mb-8">{error}</p>
+        </>
+      ) : method === "cod" ? (
+        <>
+          <p className="eyebrow text-foreground/50 mb-3">Order Placed</p>
+          <h1 className="font-serif text-5xl mb-4">Thank you.</h1>
+          <p className="text-foreground/60 mb-2">
+            Your cash-on-delivery order is confirmed. Please keep the exact
+            amount ready for the courier on delivery.
+          </p>
+          <p className="text-sm text-foreground/50 mb-8 tabular-nums">
+            Order #{orderId.slice(0, 8)} · Cash on delivery
+          </p>
+          <Link to="/shop" className="eyebrow border-b border-foreground pb-1">
+            Continue shopping
+          </Link>
         </>
       ) : status === "paid" ? (
         <>
