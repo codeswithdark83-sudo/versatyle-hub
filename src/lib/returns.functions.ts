@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 
 const RETURN_STATUSES = [
   "requested",
@@ -172,7 +173,7 @@ export const updateReturnRequest = createServerFn({ method: "POST" })
     if (readError) throw new Error(readError.message);
     if (!current) throw new Error("Request not found.");
 
-    const patch: Record<string, unknown> = {};
+    const patch: TablesUpdate<"return_requests"> = {};
     if (data.status !== undefined) {
       patch.status = data.status;
       if (
@@ -208,7 +209,7 @@ export const updateReturnRequest = createServerFn({ method: "POST" })
 
     // Reflect the outcome on the order itself.
     const nextStatus = data.status ?? current.status;
-    const orderPatch: Record<string, unknown> = {};
+    const orderPatch: TablesUpdate<"orders"> = {};
     if (nextStatus === "received" || nextStatus === "refunded" || nextStatus === "completed") {
       if (current.kind === "return") orderPatch.fulfillment_status = "returned";
     }

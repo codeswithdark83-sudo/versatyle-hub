@@ -420,7 +420,15 @@ export function OrderHistory() {
                     </div>
                   </div>
                 )}
+
+                <ReturnPanel
+                  orderId={o.id}
+                  items={items}
+                  eligible={o.status === "paid" && o.fulfillment_status === "delivered"}
+                  request={requestByOrder.get(o.id)}
+                />
               </li>
+
             );
           })}
         </ul>
