@@ -234,7 +234,7 @@ export const getOrderStatus = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("orders")
-      .select("id, status, amount_cents, currency, email, razorpay_payment_id")
+      .select("id, status, amount_cents, currency, email, payment_method, razorpay_payment_id")
       .eq("id", data.orderId)
       .maybeSingle();
     if (error) throw new Error(error.message);

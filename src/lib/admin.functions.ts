@@ -120,7 +120,7 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     let q = supabaseAdmin
       .from("orders")
       .select(
-        "id, email, amount_cents, currency, status, fulfillment_status, carrier, tracking_number, tracking_url, estimated_delivery, admin_note, shipped_at, delivered_at, razorpay_order_id, razorpay_payment_id, items, shipping_address, user_id, created_at, updated_at",
+        "id, email, amount_cents, currency, status, payment_method, fulfillment_status, carrier, tracking_number, tracking_url, estimated_delivery, admin_note, shipped_at, delivered_at, razorpay_order_id, razorpay_payment_id, items, shipping_address, user_id, created_at, updated_at",
       )
       .order("created_at", { ascending: false })
       .limit(data.limit);
