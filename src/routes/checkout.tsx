@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useAddresses, type Address } from "@/components/AddressBook";
 import {
+  createCodOrder,
   createRazorpayOrder,
   getRazorpayPublicConfig,
 } from "@/lib/checkout.functions";
@@ -72,6 +73,7 @@ function CheckoutPage() {
     country: "India",
     phone: "",
   });
+  const [payMethod, setPayMethod] = useState<"online" | "cod">("online");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
