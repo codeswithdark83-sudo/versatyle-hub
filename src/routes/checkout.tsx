@@ -438,12 +438,18 @@ function CheckoutPage() {
               disabled={submitting}
               className="w-full bg-foreground text-background eyebrow py-4 hover:bg-foreground/90 transition-colors disabled:opacity-60"
             >
-              {submitting ? "Processing…" : `Pay ${formatPrice(total)}`}
+              {submitting
+                ? "Processing…"
+                : payMethod === "cod"
+                  ? `Place order · ${formatPrice(total)}`
+                  : `Pay ${formatPrice(total)}`}
             </button>
             <p className="text-[11px] text-foreground/50 leading-relaxed">
-              Payments are securely processed by Razorpay. You'll be redirected
-              to a confirmation page once your payment is captured. Free shipping in India on
-              orders ₹499+ · 30-day returns on unworn items with tags.
+              {payMethod === "cod"
+                ? `Pay ${formatPrice(total)} in cash when your order is delivered. Please keep the exact amount ready for the courier.`
+                : "Payments are securely processed by Razorpay. You'll be redirected to a confirmation page once your payment is captured."}{" "}
+              Free shipping in India on orders ₹499+ · 30-day returns on unworn
+              items with tags.
             </p>
 
           </div>
