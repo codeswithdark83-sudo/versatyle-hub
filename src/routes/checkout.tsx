@@ -119,6 +119,51 @@ function CheckoutPage() {
     if (items.length === 0) return;
     setSubmitting(true);
     try {
+      const payload = {
+        email: form.email,
+        items: items.map((i) => ({
+          slug: i.slug,
+          size: i.size,
+          color: i.color,
+          quantity: i.quantity,
+        })),
+        shipping: {
+          fullName: form.fullName,
+          line1: form.line1,
+          line2: form.line2,
+          city: form.city,
+          state: form.state,
+          postalCode: form.postalCode,
+          country: form.country,
+          phone: form.phone,
+        },
+      };
+
+      async function persistAddress() {
+        if (user && saveAddress && !selectedAddressId) {
+          await supabase.from("addresses").insert({
+            user_id: user.id,
+            full_name: form.fullName,
+            phone: form.phone,
+            line1: form.line1,
+            line2: form.line2 || null,
+            city: form.city,
+            state: form.state,
+            postal_code: form.postalCode,
+            country: form.country,
+            is_default: addresses.length === 0,
+          });
+        }
+      }
+
+      if (payMethod === "cod") {
+        const codOrder = await createCodOrder({ data: payload });
+        await persistAddress();
+        clear();
+        navigate({ to: "/order/success", search: { orderId: codOrder.orderId } });
+        return;
+      }
+
       const ok = await loadRazorpay();
       if (!ok) throw new Error("Could not load payment gateway.");
 
