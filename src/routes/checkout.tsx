@@ -167,42 +167,9 @@ function CheckoutPage() {
       const ok = await loadRazorpay();
       if (!ok) throw new Error("Could not load payment gateway.");
 
-      const order = await createRazorpayOrder({
-        data: {
-          email: form.email,
-          items: items.map((i) => ({
-            slug: i.slug,
-            size: i.size,
-            color: i.color,
-            quantity: i.quantity,
-          })),
-          shipping: {
-            fullName: form.fullName,
-            line1: form.line1,
-            line2: form.line2,
-            city: form.city,
-            state: form.state,
-            postalCode: form.postalCode,
-            country: form.country,
-            phone: form.phone,
-          },
-        },
-      });
+      const order = await createRazorpayOrder({ data: payload });
 
-      if (user && saveAddress && !selectedAddressId) {
-        await supabase.from("addresses").insert({
-          user_id: user.id,
-          full_name: form.fullName,
-          phone: form.phone,
-          line1: form.line1,
-          line2: form.line2 || null,
-          city: form.city,
-          state: form.state,
-          postal_code: form.postalCode,
-          country: form.country,
-          is_default: addresses.length === 0,
-        });
-      }
+      await persistAddress();
 
       // Fallback key (Razorpay key id is public/publishable).
       const cfg = order.keyId
