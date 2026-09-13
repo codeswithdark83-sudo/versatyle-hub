@@ -347,7 +347,44 @@ function CheckoutPage() {
               </label>
             )}
           </section>
+
+          <section className="space-y-4">
+            <h2 className="font-serif text-2xl">Payment Method</h2>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <label
+                className={`border p-4 cursor-pointer ${payMethod === "online" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+              >
+                <input
+                  type="radio"
+                  name="payMethod"
+                  className="sr-only"
+                  checked={payMethod === "online"}
+                  onChange={() => setPayMethod("online")}
+                />
+                <span className="block font-medium mb-1">Pay online</span>
+                <span className="block text-sm text-foreground/60">
+                  UPI, cards, netbanking and wallets — secured by Razorpay.
+                </span>
+              </label>
+              <label
+                className={`border p-4 cursor-pointer ${payMethod === "cod" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+              >
+                <input
+                  type="radio"
+                  name="payMethod"
+                  className="sr-only"
+                  checked={payMethod === "cod"}
+                  onChange={() => setPayMethod("cod")}
+                />
+                <span className="block font-medium mb-1">Cash on delivery</span>
+                <span className="block text-sm text-foreground/60">
+                  Pay in cash to the courier when your order arrives.
+                </span>
+              </label>
+            </div>
+          </section>
         </div>
+
 
         <aside className="lg:sticky lg:top-24 self-start">
           <div className="border border-border p-8 space-y-6">
