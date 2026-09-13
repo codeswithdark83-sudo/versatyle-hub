@@ -388,6 +388,11 @@ export function OrderHistory() {
                           </li>
                         ))}
                       </ul>
+                      <p className="mt-4 text-xs text-foreground/50">
+                        {o.payment_method === "cod"
+                          ? "Cash on delivery"
+                          : "Paid online"}
+                      </p>
                       {o.razorpay_payment_id && (
                         <p className="mt-4 text-xs text-foreground/50">
                           Payment ref: {o.razorpay_payment_id}

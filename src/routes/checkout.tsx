@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useAddresses, type Address } from "@/components/AddressBook";
 import {
+  createCodOrder,
   createRazorpayOrder,
   getRazorpayPublicConfig,
 } from "@/lib/checkout.functions";
@@ -72,6 +73,7 @@ function CheckoutPage() {
     country: "India",
     phone: "",
   });
+  const [payMethod, setPayMethod] = useState<"online" | "cod">("online");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saveAddress, setSaveAddress] = useState(true);
@@ -117,45 +119,57 @@ function CheckoutPage() {
     if (items.length === 0) return;
     setSubmitting(true);
     try {
+      const payload = {
+        email: form.email,
+        items: items.map((i) => ({
+          slug: i.slug,
+          size: i.size,
+          color: i.color,
+          quantity: i.quantity,
+        })),
+        shipping: {
+          fullName: form.fullName,
+          line1: form.line1,
+          line2: form.line2,
+          city: form.city,
+          state: form.state,
+          postalCode: form.postalCode,
+          country: form.country,
+          phone: form.phone,
+        },
+      };
+
+      async function persistAddress() {
+        if (user && saveAddress && !selectedAddressId) {
+          await supabase.from("addresses").insert({
+            user_id: user.id,
+            full_name: form.fullName,
+            phone: form.phone,
+            line1: form.line1,
+            line2: form.line2 || null,
+            city: form.city,
+            state: form.state,
+            postal_code: form.postalCode,
+            country: form.country,
+            is_default: addresses.length === 0,
+          });
+        }
+      }
+
+      if (payMethod === "cod") {
+        const codOrder = await createCodOrder({ data: payload });
+        await persistAddress();
+        clear();
+        navigate({ to: "/order/success", search: { orderId: codOrder.orderId } });
+        return;
+      }
+
       const ok = await loadRazorpay();
       if (!ok) throw new Error("Could not load payment gateway.");
 
-      const order = await createRazorpayOrder({
-        data: {
-          email: form.email,
-          items: items.map((i) => ({
-            slug: i.slug,
-            size: i.size,
-            color: i.color,
-            quantity: i.quantity,
-          })),
-          shipping: {
-            fullName: form.fullName,
-            line1: form.line1,
-            line2: form.line2,
-            city: form.city,
-            state: form.state,
-            postalCode: form.postalCode,
-            country: form.country,
-            phone: form.phone,
-          },
-        },
-      });
+      const order = await createRazorpayOrder({ data: payload });
 
-      if (user && saveAddress && !selectedAddressId) {
-        await supabase.from("addresses").insert({
-          user_id: user.id,
-          full_name: form.fullName,
-          phone: form.phone,
-          line1: form.line1,
-          line2: form.line2 || null,
-          city: form.city,
-          state: form.state,
-          postal_code: form.postalCode,
-          country: form.country,
-          is_default: addresses.length === 0,
-        });
-      }
+      await persistAddress();
 
       // Fallback key (Razorpay key id is public/publishable).
       const cfg = order.keyId
@@ -333,7 +347,44 @@ function CheckoutPage() {
               </label>
             )}
           </section>
+
+          <section className="space-y-4">
+            <h2 className="font-serif text-2xl">Payment Method</h2>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <label
+                className={`border p-4 cursor-pointer ${payMethod === "online" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+              >
+                <input
+                  type="radio"
+                  name="payMethod"
+                  className="sr-only"
+                  checked={payMethod === "online"}
+                  onChange={() => setPayMethod("online")}
+                />
+                <span className="block font-medium mb-1">Pay online</span>
+                <span className="block text-sm text-foreground/60">
+                  UPI, cards, netbanking and wallets — secured by Razorpay.
+                </span>
+              </label>
+              <label
+                className={`border p-4 cursor-pointer ${payMethod === "cod" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
+              >
+                <input
+                  type="radio"
+                  name="payMethod"
+                  className="sr-only"
+                  checked={payMethod === "cod"}
+                  onChange={() => setPayMethod("cod")}
+                />
+                <span className="block font-medium mb-1">Cash on delivery</span>
+                <span className="block text-sm text-foreground/60">
+                  Pay in cash to the courier when your order arrives.
+                </span>
+              </label>
+            </div>
+          </section>
         </div>
+
 
         <aside className="lg:sticky lg:top-24 self-start">
           <div className="border border-border p-8 space-y-6">
@@ -387,12 +438,18 @@ function CheckoutPage() {
               disabled={submitting}
               className="w-full bg-foreground text-background eyebrow py-4 hover:bg-foreground/90 transition-colors disabled:opacity-60"
             >
-              {submitting ? "Processing…" : `Pay ${formatPrice(total)}`}
+              {submitting
+                ? "Processing…"
+                : payMethod === "cod"
+                  ? `Place order · ${formatPrice(total)}`
+                  : `Pay ${formatPrice(total)}`}
             </button>
             <p className="text-[11px] text-foreground/50 leading-relaxed">
-              Payments are securely processed by Razorpay. You'll be redirected
-              to a confirmation page once your payment is captured. Free shipping in India on
-              orders ₹499+ · 30-day returns on unworn items with tags.
+              {payMethod === "cod"
+                ? `Pay ${formatPrice(total)} in cash when your order is delivered. Please keep the exact amount ready for the courier.`
+                : "Payments are securely processed by Razorpay. You'll be redirected to a confirmation page once your payment is captured."}{" "}
+              Free shipping in India on orders ₹499+ · 30-day returns on unworn
+              items with tags.
             </p>
 
           </div>

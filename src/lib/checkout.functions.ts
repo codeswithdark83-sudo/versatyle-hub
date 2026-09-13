@@ -152,13 +152,89 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
     };
   });
 
+// Cash on delivery: no gateway involved. We price the cart server-side,
+// check stock, save the order and reserve stock immediately.
+export const createCodOrder = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => inputSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { fetchActiveProducts } = await import("./catalog.server");
+    const catalog = new Map((await fetchActiveProducts()).map((p) => [p.slug, p]));
+    let subtotalUnits = 0;
+    const priced = data.items.map((i) => {
+      const p = catalog.get(i.slug);
+      if (!p) throw new Error(`This piece is no longer available: ${i.slug}`);
+      const variant = p.variants.find((v) => v.size === i.size);
+      if (!variant) throw new Error(`${p.name} is no longer offered in size ${i.size}.`);
+      if (variant.stock < i.quantity) {
+        throw new Error(
+          variant.stock === 0
+            ? `${p.name} (size ${i.size}) is sold out.`
+            : `Only ${variant.stock} left of ${p.name} in size ${i.size}.`,
+        );
+      }
+      const unit = variant.price ?? p.price;
+      subtotalUnits += unit * i.quantity;
+      return { ...i, name: p.name, price: unit };
+    });
+    const shippingUnits = subtotalUnits >= 150 ? 0 : 15;
+    const taxUnits = Math.round(subtotalUnits * 0.08 * 100) / 100;
+    const totalUnits = subtotalUnits + shippingUnits + taxUnits;
+    const amountMinor = Math.round(totalUnits * 100);
+
+    let userId: string | null = null;
+    try {
+      const { getRequestHeader } = await import("@tanstack/react-start/server");
+      const raw = getRequestHeader("authorization");
+      const token = raw?.startsWith("Bearer ") ? raw.slice(7) : undefined;
+      if (token) {
+        const authClient = createClient<Database>(
+          process.env.SUPABASE_URL!,
+          process.env.SUPABASE_PUBLISHABLE_KEY!,
+          { auth: { persistSession: false, autoRefreshToken: false } },
+        );
+        const { data: u } = await authClient.auth.getUser(token);
+        userId = u.user?.id ?? null;
+      }
+    } catch {
+      // guest checkout still allowed
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: inserted, error } = await supabaseAdmin
+      .from("orders")
+      .insert({
+        user_id: userId,
+        email: data.email,
+        amount_cents: amountMinor,
+        currency: "INR",
+        status: "created",
+        payment_method: "cod",
+        fulfillment_status: "confirmed",
+        items: priced,
+        shipping_address: data.shipping,
+      })
+      .select("id")
+      .single();
+    if (error) {
+      console.error("Insert COD order failed", error);
+      throw new Error("Could not save your order.");
+    }
+
+    const { error: stockError } = await supabaseAdmin.rpc("consume_order_stock", {
+      _order_id: inserted.id,
+    });
+    if (stockError) console.error("consume_order_stock failed", stockError);
+
+    return { orderId: inserted.id, amount: amountMinor, currency: "INR" };
+  });
+
 export const getOrderStatus = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ orderId: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("orders")
-      .select("id, status, amount_cents, currency, email, razorpay_payment_id")
+      .select("id, status, amount_cents, currency, email, payment_method, razorpay_payment_id")
       .eq("id", data.orderId)
       .maybeSingle();
     if (error) throw new Error(error.message);

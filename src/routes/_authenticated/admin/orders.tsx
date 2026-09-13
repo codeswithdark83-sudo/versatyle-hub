@@ -204,6 +204,11 @@ function OrdersPage() {
                         <p className="text-foreground/50">No address.</p>
                       )}
                       <p className="mt-4 text-xs text-foreground/40">
+                        Payment method:{" "}
+                        {o.payment_method === "cod"
+                          ? "Cash on delivery"
+                          : "Online (Razorpay)"}
+                        <br />
                         Order ID: {o.id}
                         <br />
                         Razorpay order: {o.razorpay_order_id ?? "—"}
