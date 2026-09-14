@@ -18,6 +18,8 @@ import { CartProvider } from "@/lib/cart";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import { Toaster } from "@/components/ui/sonner";
+import { PageTransition } from "@/components/motion/PageTransition";
+
 
 function NotFoundComponent() {
   return (
