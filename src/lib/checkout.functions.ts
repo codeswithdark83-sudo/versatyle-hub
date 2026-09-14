@@ -228,16 +228,66 @@ export const createCodOrder = createServerFn({ method: "POST" })
     return { orderId: inserted.id, amount: amountMinor, currency: "INR" };
   });
 
+const orderItemSchema = z.object({
+  slug: z.string(),
+  size: z.string(),
+  color: z.string(),
+  quantity: z.number(),
+  name: z.string().optional(),
+  price: z.number().optional(),
+});
+
 export const getOrderStatus = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ orderId: z.string().uuid() }).parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await supabaseAdmin
       .from("orders")
-      .select("id, status, amount_cents, currency, email, payment_method, razorpay_payment_id")
+      .select(
+        "id, status, amount_cents, currency, email, payment_method, razorpay_payment_id, items, fulfillment_status, estimated_delivery, created_at, shipping_address",
+      )
       .eq("id", data.orderId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Order not found.");
-    return row;
+
+    const items = z.array(orderItemSchema).safeParse(row.items).data ?? [];
+    const shipping = shippingSchema.partial().safeParse(row.shipping_address).data ?? null;
+
+    // Fall back to a 5-7 business-day window from the order date.
+    const placedAt = new Date(row.created_at);
+    const windowFrom = row.estimated_delivery
+      ? new Date(row.estimated_delivery)
+      : new Date(placedAt.getTime() + 5 * 86400000);
+    const windowTo = row.estimated_delivery
+      ? new Date(row.estimated_delivery)
+      : new Date(placedAt.getTime() + 7 * 86400000);
+
+    return {
+      id: row.id,
+      status: row.status,
+      amountCents: row.amount_cents,
+      currency: row.currency,
+      email: row.email,
+      payment_method: row.payment_method,
+      razorpay_payment_id: row.razorpay_payment_id,
+      fulfillmentStatus: row.fulfillment_status,
+      createdAt: row.created_at,
+      items,
+      shipping: shipping
+        ? {
+            fullName: shipping.fullName ?? "",
+            line1: shipping.line1 ?? "",
+            line2: shipping.line2 ?? "",
+            city: shipping.city ?? "",
+            state: shipping.state ?? "",
+            postalCode: shipping.postalCode ?? "",
+            country: shipping.country ?? "",
+          }
+        : null,
+      estimatedDeliveryFrom: windowFrom.toISOString(),
+      estimatedDeliveryTo: windowTo.toISOString(),
+      estimatedDeliveryExact: Boolean(row.estimated_delivery),
+    };
   });
+
