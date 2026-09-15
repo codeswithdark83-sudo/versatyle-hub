@@ -188,3 +188,38 @@ html.dark {
 @utility animate-fade-in-slow {
   animation: fade-in 1.2s ease-out both;
 }
+
+
+/* Seamless looping ticker: duplicate content shifts by exactly one copy. */
+.ticker {
+  overflow: hidden;
+  padding-block: 1rem;
+}
+
+.ticker__track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 24s linear infinite;
+  will-change: transform;
+}
+
+.ticker__content {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4rem;
+  padding-right: 4rem;
+  white-space: nowrap;
+}
+
+@keyframes ticker-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker__track {
+    animation: none;
+  }
+}
