@@ -99,21 +99,29 @@ function Home() {
           </div>
         </div>
 
-        {/* Marquee ticker */}
-        <div className="border-t border-border py-4 overflow-hidden bg-background">
-          <div className="flex gap-16 whitespace-nowrap eyebrow text-foreground/50">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="flex gap-16 shrink-0">
-                <span>Free shipping over ₹4,000</span>
-                <span>·</span>
-                <span>30-day returns</span>
-                <span>·</span>
-                <span>Crafted in limited runs</span>
-                <span>·</span>
-                <span>New arrivals every Friday</span>
-                <span>·</span>
-              </div>
-            ))}
+        {/* Continuously looping benefits ticker */}
+        <div className="ticker border-t border-border bg-background">
+          <div className="ticker__track eyebrow text-foreground/50">
+            <div className="ticker__content">
+              <span>Free shipping over ₹4,000</span>
+              <span aria-hidden="true">·</span>
+              <span>30-day returns</span>
+              <span aria-hidden="true">·</span>
+              <span>Crafted in limited runs</span>
+              <span aria-hidden="true">·</span>
+              <span>New arrivals every Friday</span>
+              <span aria-hidden="true">·</span>
+            </div>
+            <div className="ticker__content" aria-hidden="true">
+              <span>Free shipping over ₹4,000</span>
+              <span>·</span>
+              <span>30-day returns</span>
+              <span>·</span>
+              <span>Crafted in limited runs</span>
+              <span>·</span>
+              <span>New arrivals every Friday</span>
+              <span>·</span>
+            </div>
           </div>
         </div>
       </section>
