@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-r
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 
 const searchSchema = z.object({
@@ -68,11 +67,15 @@ function AuthPage() {
   async function handleGoogle() {
     setError(null);
     setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + "/auth",
+    // Use Supabase's native OAuth so this works on any host (Vercel, custom domain).
+    // The previous Lovable broker only exists on Lovable-hosted domains (/~oauth/initiate),
+    // which caused a 404 on Vercel.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin + "/auth" },
     });
-    if (result.error) {
-      setError(result.error.message);
+    if (error) {
+      setError(error.message);
       setBusy(false);
     }
   }
