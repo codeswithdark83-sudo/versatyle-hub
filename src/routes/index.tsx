@@ -135,7 +135,7 @@ function Home() {
       {/* NEW ARRIVALS */}
       <section className="py-24 md:py-28 border-t border-border">
         <div className="max-w-[1440px] mx-auto px-6 md:px-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+          <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
             <div>
               <p className="eyebrow text-foreground/60 mb-4">Just In</p>
               <h2 className="font-serif text-5xl md:text-6xl leading-[0.95]">
@@ -145,14 +145,17 @@ function Home() {
             <Link to="/shop" className="eyebrow link-underline pb-1 self-start md:self-auto">
               View all pieces →
             </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 md:gap-x-8 gap-y-12">
+          </Reveal>
+          <Stagger className="grid grid-cols-2 md:grid-cols-4 gap-x-6 md:gap-x-8 gap-y-12">
             {newArrivals.map((p) => (
-              <ProductCard key={p.slug} product={p} />
+              <StaggerItem key={p.slug}>
+                <ProductCard product={p} />
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
+
 
       {/* MANIFESTO / TESTIMONIAL */}
       <section className="py-32 md:py-40 border-t border-border bg-card">
