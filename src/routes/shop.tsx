@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { ProductCard } from "@/components/ProductCard";
+import { Stagger, StaggerItem } from "@/components/motion/Reveal";
+
 import { listProducts } from "@/lib/catalog.functions";
 
 const searchSchema = z.object({
