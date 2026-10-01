@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { normalizePhone } from "@/lib/phone";
 
 const itemSchema = z.object({
   slug: z.string().min(1),
@@ -21,11 +22,43 @@ const shippingSchema = z.object({
   phone: z.string().min(4).max(30),
 });
 
+// Orders must carry a valid phone number (admin calls customers about deliveries).
+// `shippingSchema` stays lenient because it is also used to read older orders.
+const shippingInputSchema = shippingSchema.transform((s, ctx) => {
+  const phone = normalizePhone(s.phone, s.country);
+  if (!phone) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["phone"],
+      message: "Please enter a valid phone number.",
+    });
+    return z.NEVER;
+  }
+  return { ...s, phone };
+});
+
 const inputSchema = z.object({
   email: z.string().email(),
   items: z.array(itemSchema).min(1).max(50),
-  shipping: shippingSchema,
+  shipping: shippingInputSchema,
 });
+
+// Save the customer's phone (and name, if their profile has none) to their profile.
+async function saveContactToProfile(userId: string | null, phone: string, fullName: string) {
+  if (!userId) return;
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("profiles").update({ phone }).eq("id", userId);
+    if (error) console.error("Saving phone to profile failed", error);
+    await supabaseAdmin
+      .from("profiles")
+      .update({ full_name: fullName })
+      .eq("id", userId)
+      .or("full_name.is.null,full_name.eq.");
+  } catch (e) {
+    console.error("saveContactToProfile failed", e);
+  }
+}
 
 // Public info the browser needs to open the Razorpay Checkout popup.
 export const getRazorpayPublicConfig = createServerFn({ method: "GET" }).handler(
@@ -142,6 +175,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       console.error("Insert order failed", error);
       throw new Error("Could not save your order.");
     }
+    await saveContactToProfile(userId, data.shipping.phone, data.shipping.fullName);
 
     return {
       orderId: inserted.id,
@@ -219,6 +253,7 @@ export const createCodOrder = createServerFn({ method: "POST" })
       console.error("Insert COD order failed", error);
       throw new Error("Could not save your order.");
     }
+    await saveContactToProfile(userId, data.shipping.phone, data.shipping.fullName);
 
     const { error: stockError } = await supabaseAdmin.rpc("consume_order_stock", {
       _order_id: inserted.id,

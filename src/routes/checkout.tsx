@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { formatPrice, useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
+import { PHONE_ERROR, PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { supabase } from "@/integrations/supabase/client";
 import { useAddresses, type Address } from "@/components/AddressBook";
 import {
@@ -86,6 +87,20 @@ function CheckoutPage() {
     }
   }, [user, form.email]);
 
+  // Prefill the phone saved on the user's profile (if they have ordered before).
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("phone")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const saved = data?.phone;
+        if (saved) setForm((f) => (f.phone ? f : { ...f, phone: saved }));
+      });
+  }, [user]);
+
   useEffect(() => {
     if (!selectedAddressId && addresses.length > 0) {
       const def = addresses.find((a) => a.is_default) ?? addresses[0];
@@ -117,6 +132,13 @@ function CheckoutPage() {
     e.preventDefault();
     setError(null);
     if (items.length === 0) return;
+    const normalizedPhone = normalizePhone(form.phone, form.country);
+    if (!normalizedPhone) {
+      setError(PHONE_ERROR);
+      document.getElementById("checkout-phone")?.focus();
+      return;
+    }
+    const phone: string = normalizedPhone;
     setSubmitting(true);
     try {
       const payload = {
@@ -135,7 +157,7 @@ function CheckoutPage() {
           state: form.state,
           postalCode: form.postalCode,
           country: form.country,
-          phone: form.phone,
+          phone,
         },
       };
 
@@ -144,7 +166,7 @@ function CheckoutPage() {
           await supabase.from("addresses").insert({
             user_id: user.id,
             full_name: form.fullName,
-            phone: form.phone,
+            phone,
             line1: form.line1,
             line2: form.line2 || null,
             city: form.city,
@@ -187,7 +209,7 @@ function CheckoutPage() {
         prefill: {
           name: form.fullName,
           email: form.email,
-          contact: form.phone,
+          contact: phone,
         },
         notes: { orderId: order.orderId },
         theme: { color: "#1a1a1a" },
@@ -331,8 +353,14 @@ function CheckoutPage() {
               />
             </div>
             <Field
-              label="Phone"
+              id="checkout-phone"
+              label="Phone number"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="98765 43210"
               required
+              hint={`${PHONE_HINT} We use it to confirm your order and for delivery updates${user ? " and save it to your profile" : ""}.`}
               value={form.phone}
               onChange={(v) => setForm({ ...form, phone: v })}
             />
@@ -465,17 +493,31 @@ function Field(props: {
   onChange: (v: string) => void;
   type?: string;
   required?: boolean;
+  id?: string;
+  inputMode?: "tel" | "text" | "email" | "numeric";
+  autoComplete?: string;
+  placeholder?: string;
+  hint?: string;
 }) {
   return (
     <label className="block">
       <span className="eyebrow text-foreground/60 mb-2 block">{props.label}</span>
       <input
+        id={props.id}
         type={props.type ?? "text"}
+        inputMode={props.inputMode}
+        autoComplete={props.autoComplete}
+        placeholder={props.placeholder}
         required={props.required}
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
         className="w-full border border-border bg-background px-4 py-3 focus:outline-none focus:border-foreground"
       />
+      {props.hint && (
+        <span className="mt-1.5 block text-[11px] leading-relaxed text-foreground/50">
+          {props.hint}
+        </span>
+      )}
     </label>
   );
 }

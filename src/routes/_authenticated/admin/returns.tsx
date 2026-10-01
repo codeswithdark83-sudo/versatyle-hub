@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { listAdminReturnRequests, updateReturnRequest } from "@/lib/returns.functions";
+import { ContactActions } from "@/components/admin/ContactActions";
 
 export const Route = createFileRoute("/_authenticated/admin/returns")({
   component: ReturnsPage,
@@ -143,10 +144,18 @@ function ReturnsPage() {
                     {new Date(r.created_at).toLocaleDateString()} ·{" "}
                     {r.kind === "return" ? "Return" : "Replacement"}
                   </p>
-                  <p className="mt-1 font-medium">{r.email}</p>
+                  {r.customerName && <p className="mt-1 font-medium">{r.customerName}</p>}
                   <p className="mt-1 text-xs text-foreground/50">
                     Order #{r.order_id.slice(0, 8)}
                   </p>
+                  <div className="mt-3">
+                    <ContactActions
+                      name={r.customerName}
+                      email={r.email}
+                      phone={r.phone}
+                      orderRef={r.order_id.slice(0, 8)}
+                    />
+                  </div>
                   <span
                     className={`mt-2 inline-block px-2 py-0.5 text-[10px] uppercase tracking-wider ${
                       r.status === "requested"

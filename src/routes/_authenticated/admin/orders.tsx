@@ -3,6 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listAdminOrders, listOrderEvents, updateOrderStatus } from "@/lib/admin.functions";
+import { ContactActions } from "@/components/admin/ContactActions";
+import { formatPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: OrdersPage,
@@ -125,7 +127,7 @@ function OrdersPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by email"
+          placeholder="Search by email, name or phone"
           className="flex-1 min-w-[200px] border border-border bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-foreground"
         />
       </div>
@@ -157,7 +159,14 @@ function OrdersPage() {
                   <span className="text-foreground/70 tabular-nums">
                     {new Date(o.created_at).toLocaleDateString()}
                   </span>
-                  <span className="truncate">{o.email}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate">{ship?.fullName || o.email}</span>
+                    <span className="block truncate text-xs text-foreground/50">
+                      {[ship?.fullName ? o.email : null, ship?.phone ? formatPhone(ship.phone) : null]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  </span>
                   <span className="tabular-nums">{fmt(o.amount_cents, o.currency)}</span>
                   <span>
                     <StatusBadge status={o.status} />
@@ -188,6 +197,14 @@ function OrdersPage() {
                         ))}
                       </ul>
 
+                      <p className="eyebrow text-foreground/50 mt-5 mb-2">Contact customer</p>
+                      <ContactActions
+                        name={ship?.fullName}
+                        email={o.email}
+                        phone={ship?.phone}
+                        orderRef={o.id.slice(0, 8)}
+                      />
+
                       <p className="eyebrow text-foreground/50 mt-5 mb-2">Shipping</p>
                       {ship ? (
                         <address className="not-italic text-foreground/80 leading-relaxed">
@@ -198,7 +215,7 @@ function OrdersPage() {
                           <br />
                           {ship.city}, {ship.state} {ship.postalCode}
                           <br />
-                          {ship.country} · {ship.phone}
+                          {ship.country}
                         </address>
                       ) : (
                         <p className="text-foreground/50">No address.</p>

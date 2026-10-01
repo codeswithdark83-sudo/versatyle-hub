@@ -146,7 +146,25 @@ export const listAdminReturnRequests = createServerFn({ method: "GET" })
     if (data.search) q = q.ilike("email", `%${data.search}%`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+
+    // Attach the customer's name + phone from the original order so admin can call them.
+    const orderIds = Array.from(new Set((rows ?? []).map((r) => r.order_id)));
+    const contact = new Map<string, { phone: string | null; customerName: string | null }>();
+    if (orderIds.length) {
+      const { data: orders } = await supabaseAdmin
+        .from("orders")
+        .select("id, shipping_address")
+        .in("id", orderIds);
+      for (const o of orders ?? []) {
+        const ship = o.shipping_address as { phone?: string; fullName?: string } | null;
+        contact.set(o.id, { phone: ship?.phone ?? null, customerName: ship?.fullName ?? null });
+      }
+    }
+    return (rows ?? []).map((r) => ({
+      ...r,
+      phone: contact.get(r.order_id)?.phone ?? null,
+      customerName: contact.get(r.order_id)?.customerName ?? null,
+    }));
   });
 
 export const updateReturnRequest = createServerFn({ method: "POST" })

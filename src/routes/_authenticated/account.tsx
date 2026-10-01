@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { PHONE_ERROR, PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { AddressBook } from "@/components/AddressBook";
 import { OrderHistory } from "@/components/OrderHistory";
@@ -45,11 +46,20 @@ function AccountPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
-    setSaving(true);
     setMessage(null);
+    let phoneToSave: string | null = null;
+    if (phone.trim()) {
+      phoneToSave = normalizePhone(phone);
+      if (!phoneToSave) {
+        setMessage(PHONE_ERROR);
+        return;
+      }
+      setPhone(phoneToSave);
+    }
+    setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .upsert({ id: user.id, full_name: fullName, phone });
+      .upsert({ id: user.id, full_name: fullName, phone: phoneToSave });
     setSaving(false);
     setMessage(error ? error.message : "Saved.");
   }
@@ -83,10 +93,17 @@ function AccountPage() {
           <div>
             <label className="eyebrow block mb-2">Phone</label>
             <input
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="98765 43210"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full border border-border bg-transparent px-3 py-2.5 text-sm focus:outline-none focus:border-foreground"
             />
+            <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/50">
+              {PHONE_HINT} Required to place an order.
+            </p>
           </div>
           {message && <p className="text-sm text-foreground/70">{message}</p>}
           <div className="flex gap-4 pt-2">

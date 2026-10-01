@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { listAdminCustomers } from "@/lib/admin.functions";
+import { formatPhone, telHref } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/admin/customers")({
   component: CustomersPage,
@@ -43,7 +44,7 @@ function CustomersPage() {
         className="w-full border border-border bg-transparent px-3 py-2 text-sm focus:outline-none focus:border-foreground"
       />
       <div className="border border-border">
-        <div className="grid grid-cols-[2fr_1.5fr_1fr_100px_120px] gap-4 px-4 py-3 border-b border-border bg-muted/40 eyebrow text-foreground/60">
+        <div className="grid grid-cols-[2fr_1.5fr_1.2fr_100px_120px] gap-4 px-4 py-3 border-b border-border bg-muted/40 eyebrow text-foreground/60">
           <span>Customer</span>
           <span>Email</span>
           <span>Phone</span>
@@ -58,7 +59,7 @@ function CustomersPage() {
           filtered.map((c) => (
             <div
               key={c.id}
-              className="grid grid-cols-[2fr_1.5fr_1fr_100px_120px] gap-4 px-4 py-3 border-b border-border last:border-0 text-sm items-center"
+              className="grid grid-cols-[2fr_1.5fr_1.2fr_100px_120px] gap-4 px-4 py-3 border-b border-border last:border-0 text-sm items-center"
             >
               <div className="flex items-center gap-3">
                 {c.avatarUrl ? (
@@ -75,8 +76,26 @@ function CustomersPage() {
                   </p>
                 </div>
               </div>
-              <span className="truncate text-foreground/70">{c.email ?? "—"}</span>
-              <span className="text-foreground/70">{c.phone ?? "—"}</span>
+              {c.email ? (
+                <a
+                  href={`mailto:${c.email}`}
+                  className="truncate text-foreground/70 underline underline-offset-2 hover:text-foreground"
+                >
+                  {c.email}
+                </a>
+              ) : (
+                <span className="text-foreground/70">—</span>
+              )}
+              {c.phone ? (
+                <a
+                  href={telHref(c.phone) ?? undefined}
+                  className="text-foreground/70 underline underline-offset-2 tabular-nums hover:text-foreground"
+                >
+                  {formatPhone(c.phone)}
+                </a>
+              ) : (
+                <span className="text-foreground/40">No phone yet</span>
+              )}
               <span className="tabular-nums">{c.orders}</span>
               <span className="tabular-nums">{fmt(c.spentCents)}</span>
             </div>

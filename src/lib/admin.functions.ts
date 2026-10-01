@@ -126,7 +126,18 @@ export const listAdminOrders = createServerFn({ method: "GET" })
       .limit(data.limit);
     if (data.status !== "all") q = q.eq("status", data.status);
     if (data.fulfillment !== "all") q = q.eq("fulfillment_status", data.fulfillment);
-    if (data.search) q = q.ilike("email", `%${data.search}%`);
+    // Search by email, customer name or phone number.
+    const term = data.search.replace(/[,()"\\*%]/g, " ").trim();
+    if (term) {
+      const digits = term.replace(/\D/g, "");
+      const conds = [
+        `email.ilike.%${term}%`,
+        `shipping_address->>fullName.ilike.%${term}%`,
+        `shipping_address->>phone.ilike.%${term}%`,
+      ];
+      if (digits.length >= 4) conds.push(`shipping_address->>phone.ilike.%${digits}%`);
+      q = q.or(conds.join(","));
+    }
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
     return rows ?? [];
@@ -252,17 +263,24 @@ export const listAdminCustomers = createServerFn({ method: "GET" })
     }
 
     // aggregate order stats per user
-    const statsMap = new Map<string, { orders: number; spentCents: number }>();
+    const statsMap = new Map<
+      string,
+      { orders: number; spentCents: number; orderPhone: string | null }
+    >();
     if (ids.length) {
       const { data: orders } = await supabaseAdmin
         .from("orders")
-        .select("user_id, amount_cents, status")
-        .in("user_id", ids);
+        .select("user_id, amount_cents, status, shipping_address, created_at")
+        .in("user_id", ids)
+        .order("created_at", { ascending: false });
       for (const o of orders ?? []) {
         if (!o.user_id) continue;
-        const s = statsMap.get(o.user_id) ?? { orders: 0, spentCents: 0 };
+        const s = statsMap.get(o.user_id) ?? { orders: 0, spentCents: 0, orderPhone: null };
         s.orders += 1;
         if (o.status === "paid") s.spentCents += o.amount_cents ?? 0;
+        // newest first, so the first phone we meet is the most recent one
+        const ph = (o.shipping_address as { phone?: string } | null)?.phone;
+        if (!s.orderPhone && ph) s.orderPhone = ph;
         statsMap.set(o.user_id, s);
       }
     }
@@ -271,7 +289,7 @@ export const listAdminCustomers = createServerFn({ method: "GET" })
       id: p.id,
       email: emailMap.get(p.id) ?? null,
       fullName: p.full_name,
-      phone: p.phone,
+      phone: p.phone || statsMap.get(p.id)?.orderPhone || null,
       avatarUrl: p.avatar_url,
       createdAt: p.created_at,
       orders: statsMap.get(p.id)?.orders ?? 0,

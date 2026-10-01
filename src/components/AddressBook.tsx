@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Pencil, Trash2, Plus, Check } from "lucide-react";
+import { PHONE_ERROR, normalizePhone } from "@/lib/phone";
 
 export type Address = {
   id: string;
@@ -196,9 +197,11 @@ function AddressForm({
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
     setError(null);
-    const payload = { ...form, user_id: userId };
+    const phone = normalizePhone(form.phone, form.country);
+    if (!phone) return setError(PHONE_ERROR);
+    setSaving(true);
+    const payload = { ...form, phone, user_id: userId };
     const { error } = initial
       ? await supabase.from("addresses").update(payload).eq("id", initial.id)
       : await supabase.from("addresses").insert(payload);
@@ -212,7 +215,7 @@ function AddressForm({
       <div className="grid sm:grid-cols-2 gap-4">
         <Field label="Label (e.g. Home, Office)" value={form.label} onChange={(v) => setForm({ ...form, label: v })} />
         <Field label="Full name" required value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
-        <Field label="Phone" required value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
+        <Field label="Phone" type="tel" required value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} />
         <Field label="Country" required value={form.country} onChange={(v) => setForm({ ...form, country: v })} />
       </div>
       <Field label="Address line 1" required value={form.line1} onChange={(v) => setForm({ ...form, line1: v })} />
@@ -256,11 +259,14 @@ function Field(props: {
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
+  type?: string;
 }) {
   return (
     <label className="block">
       <span className="eyebrow text-foreground/60 mb-2 block">{props.label}</span>
       <input
+        type={props.type ?? "text"}
+        inputMode={props.type === "tel" ? "tel" : undefined}
         required={props.required}
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
