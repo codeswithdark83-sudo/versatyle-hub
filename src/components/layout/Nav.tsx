@@ -3,6 +3,7 @@ import { Search, ShoppingBag, User } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LogoMark } from "@/components/LogoMark";
 
 const CATEGORIES = [
   { label: "Men", to: "/shop", params: { category: "men" } },
@@ -20,8 +21,9 @@ export function Nav() {
         <div className="flex items-center gap-10">
           <Link
             to="/"
-            className="font-serif text-xl tracking-tight uppercase font-normal"
+            className="flex items-center gap-2.5 font-serif text-xl tracking-tight uppercase font-normal"
           >
+            <LogoMark />
             Versatile
           </Link>
           <div className="hidden md:flex gap-7">

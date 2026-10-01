@@ -1,11 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { LogoMark } from "@/components/LogoMark";
 
 export function Footer() {
   return (
     <footer className="bg-brand-charcoal text-brand-offwhite pt-20 pb-12 px-6">
       <div className="max-w-[1440px] mx-auto grid md:grid-cols-4 gap-12 mb-20">
         <div>
-          <h4 className="font-serif text-xl tracking-tight uppercase mb-6">Versatile</h4>
+          <h4 className="flex items-center gap-2.5 font-serif text-xl tracking-tight uppercase mb-6">
+            <LogoMark />
+            Versatile
+          </h4>
           <p className="text-xs leading-relaxed text-brand-offwhite/50 max-w-xs">
             Premium fashion for the modern individual. Wear your style with confidence and timeless sophistication.
           </p>
