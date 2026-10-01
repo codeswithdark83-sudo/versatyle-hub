@@ -111,5 +111,15 @@ export function useCart() {
   return ctx;
 }
 
+/**
+ * The ONE place prices are formatted for customers. Every product price in the
+ * database is in Indian rupees, so anything added from the admin inventory panel
+ * automatically shows as ₹ (with Indian digit grouping, e.g. ₹12,999).
+ */
 export const formatPrice = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(n);

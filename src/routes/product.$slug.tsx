@@ -186,7 +186,7 @@ function ProductPage() {
           </div>
 
           <ul className="mt-10 pt-8 border-t border-border grid grid-cols-3 gap-4 text-center">
-            <Feature icon={<Truck className="size-4" strokeWidth={1.5} />} label="Free shipping over $150" />
+            <Feature icon={<Truck className="size-4" strokeWidth={1.5} />} label={`Free shipping over ${formatPrice(150)}`} />
             <Feature icon={<RotateCcw className="size-4" strokeWidth={1.5} />} label="30-day returns" />
             <Feature icon={<ShieldCheck className="size-4" strokeWidth={1.5} />} label="Authenticity guaranteed" />
           </ul>

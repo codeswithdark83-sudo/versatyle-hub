@@ -44,11 +44,12 @@ function stageFor(status: string, fulfillment?: string | null) {
 }
 
 function money(cents: number, currency: string) {
-  const symbol = currency === "INR" ? "₹" : "$";
-  return `${symbol}${(cents / 100).toLocaleString(undefined, {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: currency || "INR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })}`;
+  }).format(cents / 100);
 }
 
 function StatusBadge({

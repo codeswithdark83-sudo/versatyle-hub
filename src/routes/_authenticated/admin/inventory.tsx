@@ -356,20 +356,24 @@ function ProductForm({
             className={inputCls}
           />
         </Field>
-        <Field label="Price">
+        <Field label="Price (₹ INR)">
           <input
             required
             type="number"
             min={0}
+            step={1}
+            placeholder="e.g. 1499"
             value={draft.price}
             onChange={(e) => set("price", e.target.value)}
             className={inputCls}
           />
         </Field>
-        <Field label="Compare-at price (optional)">
+        <Field label="Compare-at price (₹, optional)">
           <input
             type="number"
             min={0}
+            step={1}
+            placeholder="e.g. 1999"
             value={draft.compareAtPrice}
             onChange={(e) => set("compareAtPrice", e.target.value)}
             className={inputCls}
