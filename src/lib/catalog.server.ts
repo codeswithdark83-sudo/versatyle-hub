@@ -38,13 +38,6 @@ export type ProductRow = {
   product_variants: { size: string; stock: number; price: number | null; sort_order: number }[] | null;
 };
 
-function resolveProductImageUrl(imageUrl: string | null): string {
-  if (!imageUrl) return "";
-  if (!imageUrl.startsWith("/__l5e/assets-v1/")) return imageUrl;
-  const filename = imageUrl.split("/").pop();
-  return filename ? `/images/${filename}` : imageUrl;
-}
-
 export function toProduct(row: ProductRow): Product {
   const variants = [...(row.product_variants ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order || a.size.localeCompare(b.size))
@@ -61,9 +54,7 @@ export function toProduct(row: ProductRow): Product {
     colors: row.colors ?? [],
     description: row.description ?? "",
     material: row.material ?? "",
-    // Existing Supabase rows use Lovable-only /__l5e asset paths.
-    // Map those legacy paths to the identical files committed in public/images.
-    image: resolveProductImageUrl(row.image_url),
+    image: row.image_url ?? "",
     sizes: variants.map((v) => v.size),
     variants,
     totalStock,

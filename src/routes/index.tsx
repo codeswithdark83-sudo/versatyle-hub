@@ -1,10 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-// Public assets are served directly by Vercel from /public/images.
-const hero = "/images/hero.jpg";
-const collectionMen = "/images/collection-men.jpg";
-const collectionWomen = "/images/collection-women.jpg";
+import heroAsset from "@/assets/hero.jpg.asset.json";
+import menAsset from "@/assets/collection-men.jpg.asset.json";
+import womenAsset from "@/assets/collection-women.jpg.asset.json";
+const hero = heroAsset.url;
+const collectionMen = menAsset.url;
+const collectionWomen = womenAsset.url;
+
 import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
+import { Reveal, RevealWords, Stagger, StaggerItem } from "@/components/motion/Reveal";
+
 
 export const Route = createFileRoute("/")({
   loader: () => listProducts(),
@@ -135,7 +140,7 @@ function Home() {
       {/* NEW ARRIVALS */}
       <section className="py-24 md:py-28 border-t border-border">
         <div className="max-w-[1440px] mx-auto px-6 md:px-10">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+          <Reveal className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
             <div>
               <p className="eyebrow text-foreground/60 mb-4">Just In</p>
               <h2 className="font-serif text-5xl md:text-6xl leading-[0.95]">
@@ -145,18 +150,21 @@ function Home() {
             <Link to="/shop" className="eyebrow link-underline pb-1 self-start md:self-auto">
               View all pieces →
             </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 md:gap-x-8 gap-y-12">
+          </Reveal>
+          <Stagger className="grid grid-cols-2 md:grid-cols-4 gap-x-6 md:gap-x-8 gap-y-12">
             {newArrivals.map((p) => (
-              <ProductCard key={p.slug} product={p} />
+              <StaggerItem key={p.slug}>
+                <ProductCard product={p} />
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
 
+
       {/* MANIFESTO / TESTIMONIAL */}
       <section className="py-32 md:py-40 border-t border-border bg-card">
-        <div className="max-w-[1280px] mx-auto px-6 md:px-10 grid md:grid-cols-12 gap-8">
+        <Reveal className="max-w-[1280px] mx-auto px-6 md:px-10 grid md:grid-cols-12 gap-8">
           <p className="eyebrow md:col-span-3 text-foreground/60">A note from the atelier</p>
           <div className="md:col-span-9">
             <blockquote className="font-serif text-3xl md:text-5xl leading-[1.15] tracking-tight">
@@ -168,12 +176,12 @@ function Home() {
               <span className="eyebrow">Elena V. — Creative Director</span>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* SALE STRIP */}
       <section className="py-20 border-t border-border">
-        <div className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <Reveal className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <p className="eyebrow text-foreground/60 mb-2">Seasonal Archive</p>
             <h2 className="font-serif text-4xl md:text-5xl leading-tight">
@@ -186,16 +194,18 @@ function Home() {
           >
             Shop the Sale
           </Link>
-        </div>
+        </Reveal>
       </section>
+
 
       {/* NEWSLETTER */}
       <section className="py-24 border-t border-border">
-        <div className="max-w-2xl mx-auto px-6 text-center">
+        <Reveal className="max-w-2xl mx-auto px-6 text-center">
           <p className="eyebrow text-foreground/60 mb-4">The Circle</p>
           <h2 className="font-serif text-4xl md:text-5xl mb-4">
             Correspondence, <span className="italic">quietly</span>.
           </h2>
+
           <p className="text-sm text-foreground/60 mb-10">
             Occasional letters on new pieces, editorial notes, and private previews.
           </p>
@@ -220,7 +230,8 @@ function Home() {
               Subscribe
             </button>
           </form>
-        </div>
+        </Reveal>
+
       </section>
     </>
   );
@@ -243,7 +254,8 @@ function ZigRow({
 }) {
   return (
     <div className="grid md:grid-cols-12 gap-8 md:gap-16 items-center">
-      <div
+      <Reveal
+        y={40}
         className={`md:col-span-7 ${reverse ? "md:order-2" : ""}`}
       >
         <Link to={chapter.to} search={chapter.search} className="group block relative">
@@ -261,31 +273,26 @@ function ZigRow({
             {chapter.no}
           </span>
         </Link>
-      </div>
+      </Reveal>
       <div className={`md:col-span-5 ${reverse ? "md:order-1 md:pr-8" : "md:pl-8"}`}>
-        <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
+        <Reveal delay={0.08}>
+          <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
+        </Reveal>
         <h3 className="font-serif text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6">
-          {chapter.title.split(" ").map((w, i) =>
-            i === chapter.title.split(" ").length - 1 ? (
-              <span key={i} className="italic font-light">
-                {" "}
-                {w}
-              </span>
-            ) : i === 0 ? (
-              <span key={i}>{w}</span>
-            ) : (
-              <span key={i}> {w}</span>
-            ),
-          )}
+          <RevealWords text={chapter.title} delay={0.12} italicLast />
         </h3>
-        <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
-        <Link
-          to={chapter.to}
-          search={chapter.search}
-          className="eyebrow link-underline pb-1 inline-block"
-        >
-          Explore the edit →
-        </Link>
+
+        <Reveal delay={0.2}>
+          <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
+          <Link
+            to={chapter.to}
+            search={chapter.search}
+            className="eyebrow link-underline pb-1 inline-block"
+          >
+            Explore the edit →
+          </Link>
+        </Reveal>
+
       </div>
     </div>
   );
