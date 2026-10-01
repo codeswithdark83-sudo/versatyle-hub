@@ -262,23 +262,15 @@ function ZigRow({
             {chapter.no}
           </span>
         </Link>
-      </div>
+      </Reveal>
       <div className={`md:col-span-5 ${reverse ? "md:order-1 md:pr-8" : "md:pl-8"}`}>
-        <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
+        <Reveal delay={0.08}>
+          <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
+        </Reveal>
         <h3 className="font-serif text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6">
-          {chapter.title.split(" ").map((w, i) =>
-            i === chapter.title.split(" ").length - 1 ? (
-              <span key={i} className="italic font-light">
-                {" "}
-                {w}
-              </span>
-            ) : i === 0 ? (
-              <span key={i}>{w}</span>
-            ) : (
-              <span key={i}> {w}</span>
-            ),
-          )}
+          <RevealWords text={chapter.title} delay={0.12} italicLast />
         </h3>
+
         <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
         <Link
           to={chapter.to}
