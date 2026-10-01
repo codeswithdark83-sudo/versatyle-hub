@@ -191,11 +191,12 @@ function Home() {
 
       {/* NEWSLETTER */}
       <section className="py-24 border-t border-border">
-        <div className="max-w-2xl mx-auto px-6 text-center">
+        <Reveal className="max-w-2xl mx-auto px-6 text-center">
           <p className="eyebrow text-foreground/60 mb-4">The Circle</p>
           <h2 className="font-serif text-4xl md:text-5xl mb-4">
             Correspondence, <span className="italic">quietly</span>.
           </h2>
+
           <p className="text-sm text-foreground/60 mb-10">
             Occasional letters on new pieces, editorial notes, and private previews.
           </p>
