@@ -21,6 +21,7 @@ import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { WelcomeSplash } from "@/components/WelcomeSplash";
 
 
 function NotFoundComponent() {
@@ -98,6 +99,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    scripts: [
+      {
+        children:
+          "try{if(sessionStorage.getItem('versatile-splash-seen'))document.documentElement.dataset.splash='seen'}catch(e){}",
+      },
+    ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", sizes: "any" },
@@ -120,7 +127,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
@@ -137,6 +144,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <WelcomeSplash />
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
