@@ -93,11 +93,17 @@ function Shop() {
       {list.length === 0 ? (
         <p className="text-center py-24 text-foreground/60">No pieces in this category yet.</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 gap-y-14">
+        <Stagger
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 gap-y-14"
+          step={0.06}
+        >
           {list.map((p) => (
-            <ProductCard key={p.slug} product={p} />
+            <StaggerItem key={p.slug}>
+              <ProductCard product={p} />
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
+
       )}
     </div>
   );
