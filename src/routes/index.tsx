@@ -156,7 +156,7 @@ function Home() {
 
       {/* MANIFESTO / TESTIMONIAL */}
       <section className="py-32 md:py-40 border-t border-border bg-card">
-        <div className="max-w-[1280px] mx-auto px-6 md:px-10 grid md:grid-cols-12 gap-8">
+        <Reveal className="max-w-[1280px] mx-auto px-6 md:px-10 grid md:grid-cols-12 gap-8">
           <p className="eyebrow md:col-span-3 text-foreground/60">A note from the atelier</p>
           <div className="md:col-span-9">
             <blockquote className="font-serif text-3xl md:text-5xl leading-[1.15] tracking-tight">
@@ -168,12 +168,12 @@ function Home() {
               <span className="eyebrow">Elena V. — Creative Director</span>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* SALE STRIP */}
       <section className="py-20 border-t border-border">
-        <div className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <Reveal className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
             <p className="eyebrow text-foreground/60 mb-2">Seasonal Archive</p>
             <h2 className="font-serif text-4xl md:text-5xl leading-tight">
@@ -186,8 +186,9 @@ function Home() {
           >
             Shop the Sale
           </Link>
-        </div>
+        </Reveal>
       </section>
+
 
       {/* NEWSLETTER */}
       <section className="py-24 border-t border-border">
