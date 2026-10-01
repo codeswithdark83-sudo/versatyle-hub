@@ -271,14 +271,17 @@ function ZigRow({
           <RevealWords text={chapter.title} delay={0.12} italicLast />
         </h3>
 
-        <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
-        <Link
-          to={chapter.to}
-          search={chapter.search}
-          className="eyebrow link-underline pb-1 inline-block"
-        >
-          Explore the edit →
-        </Link>
+        <Reveal delay={0.2}>
+          <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
+          <Link
+            to={chapter.to}
+            search={chapter.search}
+            className="eyebrow link-underline pb-1 inline-block"
+          >
+            Explore the edit →
+          </Link>
+        </Reveal>
+
       </div>
     </div>
   );
