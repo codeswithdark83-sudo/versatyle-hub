@@ -5,6 +5,8 @@ const collectionMen = "/images/collection-men.jpg";
 const collectionWomen = "/images/collection-women.jpg";
 import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
+import { Reveal, RevealWords, Stagger, StaggerItem } from "@/components/motion/Reveal";
+
 
 export const Route = createFileRoute("/")({
   loader: () => listProducts(),
