@@ -1,11 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import heroAsset from "@/assets/hero.jpg.asset.json";
-import collectionMenAsset from "@/assets/collection-men.jpg.asset.json";
-import collectionWomenAsset from "@/assets/collection-women.jpg.asset.json";
-
-const hero = heroAsset.url;
-const collectionMen = collectionMenAsset.url;
-const collectionWomen = collectionWomenAsset.url;
+// Public assets are served directly by Vercel from /public/images.
+const hero = "/images/hero.jpg";
+const collectionMen = "/images/collection-men.jpg";
+const collectionWomen = "/images/collection-women.jpg";
 import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
 
@@ -99,21 +96,29 @@ function Home() {
           </div>
         </div>
 
-        {/* Marquee ticker */}
-        <div className="border-t border-border py-4 overflow-hidden bg-background">
-          <div className="flex gap-16 whitespace-nowrap eyebrow text-foreground/50">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="flex gap-16 shrink-0">
-                <span>Free shipping over ₹4,000</span>
-                <span>·</span>
-                <span>30-day returns</span>
-                <span>·</span>
-                <span>Crafted in limited runs</span>
-                <span>·</span>
-                <span>New arrivals every Friday</span>
-                <span>·</span>
-              </div>
-            ))}
+        {/* Continuously looping benefits ticker */}
+        <div className="ticker border-t border-border bg-background">
+          <div className="ticker__track eyebrow text-foreground/50">
+            <div className="ticker__content">
+              <span>Free shipping over ₹4,000</span>
+              <span aria-hidden="true">·</span>
+              <span>30-day returns</span>
+              <span aria-hidden="true">·</span>
+              <span>Crafted in limited runs</span>
+              <span aria-hidden="true">·</span>
+              <span>New arrivals every Friday</span>
+              <span aria-hidden="true">·</span>
+            </div>
+            <div className="ticker__content" aria-hidden="true">
+              <span>Free shipping over ₹4,000</span>
+              <span>·</span>
+              <span>30-day returns</span>
+              <span>·</span>
+              <span>Crafted in limited runs</span>
+              <span>·</span>
+              <span>New arrivals every Friday</span>
+              <span>·</span>
+            </div>
           </div>
         </div>
       </section>
@@ -238,7 +243,8 @@ function ZigRow({
 }) {
   return (
     <div className="grid md:grid-cols-12 gap-8 md:gap-16 items-center">
-      <div
+      <Reveal
+        y={40}
         className={`md:col-span-7 ${reverse ? "md:order-2" : ""}`}
       >
         <Link to={chapter.to} search={chapter.search} className="group block relative">
