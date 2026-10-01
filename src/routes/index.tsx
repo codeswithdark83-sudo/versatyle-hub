@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 const hero = "/images/hero.jpg";
 const collectionMen = "/images/collection-men.jpg";
@@ -7,6 +8,34 @@ import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
 import { Reveal, RevealWords, Stagger, StaggerItem } from "@/components/motion/Reveal";
 
+
+const TICKER_ITEMS = [
+  "We are Versatile",
+  "Crafted in limited runs",
+  "New arrivals every Friday",
+];
+
+/**
+ * One half of the endless ticker. The list is repeated four times so a single group is
+ * always wider than the screen; the track then slides exactly one group to the left
+ * and restarts, which looks like a seamless loop.
+ */
+function TickerGroup({ hidden }: { hidden?: boolean }) {
+  return (
+    <div className="ticker__content" aria-hidden={hidden || undefined}>
+      {[0, 1, 2, 3].map((rep) => (
+        <span key={rep} className="ticker__rep" aria-hidden={rep > 0 || undefined}>
+          {TICKER_ITEMS.map((text) => (
+            <Fragment key={text}>
+              <span>{text}</span>
+              <span aria-hidden="true">·</span>
+            </Fragment>
+          ))}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   loader: () => listProducts(),
@@ -101,26 +130,8 @@ function Home() {
         {/* Continuously looping benefits ticker */}
         <div className="ticker border-t border-border bg-background">
           <div className="ticker__track eyebrow text-foreground/50">
-            <div className="ticker__content">
-              <span>Free shipping over ₹4,000</span>
-              <span aria-hidden="true">·</span>
-              <span>30-day returns</span>
-              <span aria-hidden="true">·</span>
-              <span>Crafted in limited runs</span>
-              <span aria-hidden="true">·</span>
-              <span>New arrivals every Friday</span>
-              <span aria-hidden="true">·</span>
-            </div>
-            <div className="ticker__content" aria-hidden="true">
-              <span>Free shipping over ₹4,000</span>
-              <span>·</span>
-              <span>30-day returns</span>
-              <span>·</span>
-              <span>Crafted in limited runs</span>
-              <span>·</span>
-              <span>New arrivals every Friday</span>
-              <span>·</span>
-            </div>
+            <TickerGroup />
+            <TickerGroup hidden />
           </div>
         </div>
       </section>

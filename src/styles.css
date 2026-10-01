@@ -263,3 +263,50 @@ html[data-splash="seen"] .welcome-splash {
   0% { transform: translateY(0); }
   100% { transform: translateY(-100%); visibility: hidden; }
 }
+
+/* ------------------------------------------------------------------ *
+ * Endless benefits ticker (home page). Two identical groups sit side by
+ * side; the track slides one group to the left, then loops seamlessly.
+ * ------------------------------------------------------------------ */
+.ticker {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+.ticker__track {
+  display: flex;
+  width: max-content;
+  padding-block: 0.9rem;
+  white-space: nowrap;
+  will-change: transform;
+  animation: ticker-scroll 55s linear infinite;
+}
+.ticker:hover .ticker__track {
+  animation-play-state: paused;
+}
+.ticker__content {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2.5rem;
+  padding-right: 2.5rem; /* keeps the gap identical at the seam between groups */
+}
+.ticker__rep {
+  display: contents;
+}
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker__track {
+    animation: none;
+    width: auto;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .ticker__content[aria-hidden="true"],
+  .ticker__rep[aria-hidden="true"] {
+    display: none;
+  }
+}
