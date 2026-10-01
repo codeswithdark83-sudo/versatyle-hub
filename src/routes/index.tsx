@@ -221,7 +221,8 @@ function Home() {
               Subscribe
             </button>
           </form>
-        </div>
+        </Reveal>
+
       </section>
     </>
   );
