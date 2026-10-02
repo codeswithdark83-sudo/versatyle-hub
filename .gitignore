@@ -30,3 +30,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets — never commit. Local secrets go in .env.local; deployed secrets go in Vercel env vars.
+.env.local
+.env.*.local
+.env.production

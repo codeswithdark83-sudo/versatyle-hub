@@ -39,7 +39,13 @@ type RazorpayOptions = {
   }) => void;
   modal?: { ondismiss?: () => void };
 };
-type RazorpayCtor = new (opts: RazorpayOptions) => { open: () => void };
+type RazorpayFailure = {
+  error?: { code?: string; description?: string; reason?: string; metadata?: { payment_id?: string } };
+};
+type RazorpayCtor = new (opts: RazorpayOptions) => {
+  open: () => void;
+  on: (event: "payment.failed", cb: (r: RazorpayFailure) => void) => void;
+};
 declare global {
   interface Window {
     Razorpay?: RazorpayCtor;
@@ -128,6 +134,36 @@ function CheckoutPage() {
   const tax = Math.round(subtotal * 0.08 * 100) / 100;
   const total = subtotal + shipping + tax;
 
+  // After the popup reports success, prove to our server that the payment is genuine
+  // (HMAC signature check) before showing the confirmation page.
+  async function confirmPayment(
+    resp: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string },
+    orderId: string,
+  ) {
+    try {
+      const res = await fetch("/api/public/razorpay/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(resp),
+      });
+      if (res.status === 400 || res.status === 404 || res.status === 409) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        setError(
+          `We couldn't verify your payment (${body.error ?? "verification failed"}). ` +
+            `If money was deducted, please contact us with payment ID ${resp.razorpay_payment_id}.`,
+        );
+        setSubmitting(false);
+        return;
+      }
+      // 200 = verified. A network/server hiccup (5xx) falls through on purpose:
+      // the Razorpay webhook can still confirm, and the confirmation page keeps checking.
+    } catch {
+      /* same as above */
+    }
+    clear();
+    navigate({ to: "/order/success", search: { orderId } });
+  }
+
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -214,15 +250,23 @@ function CheckoutPage() {
         notes: { orderId: order.orderId },
         theme: { color: "#1a1a1a" },
         modal: {
-          ondismiss: () => setSubmitting(false),
+          // User closed the popup without paying.
+          ondismiss: () => {
+            setError("Payment cancelled. You can try again whenever you're ready.");
+            setSubmitting(false);
+          },
         },
-        handler: () => {
-          clear();
-          navigate({
-            to: "/order/success",
-            search: { orderId: order.orderId },
-          });
+        handler: (resp) => {
+          void confirmPayment(resp, order.orderId);
         },
+      });
+      // Card declined, UPI failed, etc. The popup stays open so the customer can retry.
+      rzp.on("payment.failed", (r) => {
+        setError(
+          r.error?.description ||
+            "Payment failed. Please try again or use a different payment method.",
+        );
+        setSubmitting(false);
       });
       rzp.open();
     } catch (err) {

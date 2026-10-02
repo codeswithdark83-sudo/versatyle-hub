@@ -102,6 +102,10 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
     const totalUnits = subtotalUnits + shippingUnits + taxUnits;
     const amountMinor = Math.round(totalUnits * 100); // paise
     const currency = "INR";
+    // Razorpay rejects anything below 100 paise (₹1).
+    if (amountMinor < 100) {
+      throw new Error("Order total is below the minimum payable amount of ₹1.");
+    }
 
     // Get authenticated user (if any) using publishable client + bearer header.
     let userId: string | null = null;
@@ -146,7 +150,11 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
     if (!rzpRes.ok) {
       const body = await rzpRes.text();
       console.error("Razorpay order creation failed", rzpRes.status, body);
-      throw new Error("Could not create payment order.");
+      if (rzpRes.status === 401) {
+        // Wrong / mismatched key id + secret (e.g. a test key with a live secret).
+        throw new Error("Payment gateway authentication failed. Please contact support.");
+      }
+      throw new Error("Could not create payment order. Please try again.");
     }
     const rzpOrder = (await rzpRes.json()) as {
       id: string;
