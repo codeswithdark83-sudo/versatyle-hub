@@ -66,7 +66,7 @@ function ShippingPage() {
             ],
             [
               "Shipping cost",
-              "USA $8 · UK £6 · EU €7 · Australia AUD$12 — free over $80 USD equivalent",
+              "₹750 flat to all regions — free over ₹7,500",
             ],
             [
               "Customs",

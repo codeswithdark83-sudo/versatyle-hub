@@ -54,7 +54,7 @@ function TermsPage() {
       <PolicySection title="3. Price & payment">
         <PolicyList
           items={[
-            "Prices are shown in INR (India) or USD (international)",
+            "All prices are shown in Indian Rupees (₹ INR), including for international orders",
             "We accept cards, UPI, wallets, bank transfer, and COD (India only)",
             "Payment must be completed before an order is processed",
           ]}

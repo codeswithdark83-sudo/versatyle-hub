@@ -65,7 +65,7 @@ function ReturnsPage() {
         <PolicyTable
           rows={[
             ["Return window", "30 days standard · 60 days for loyalty members"],
-            ["Return shipping", "Free for defective items · $5 USD fee for change of mind"],
+            ["Return shipping", "Free for defective items · ₹500 fee for change of mind"],
             ["Refund method", "Original payment method, or store credit with a 5% bonus (optional)"],
           ]}
         />
