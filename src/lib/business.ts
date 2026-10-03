@@ -5,7 +5,11 @@
 export const BUSINESS = {
   name: "Versatile Studio",
   website: "www.versatilehub.in",
-  email: "hello@versatile.in",
+  email: "support.versatilehub@gmail.com",
+  whatsappDisplay: "+91 92057 73248",
+  whatsappNumber: "919205773248", // digits only, with country code
+  instagramUrl: "https://www.instagram.com/we.are.versatile",
+  instagramHandle: "@we.are.versatile",
   gstin: "",
   address: "",
 };

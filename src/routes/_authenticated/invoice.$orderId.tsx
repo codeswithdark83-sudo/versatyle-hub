@@ -254,7 +254,7 @@ function InvoicePage() {
           <div className="mt-6 border-t border-neutral-300 bg-neutral-100 px-8 py-4 text-center">
             <p className="font-serif text-lg tracking-wide">Thank you for choosing Versatile.</p>
             <p className="mt-1 text-[11px] text-neutral-600">
-              Questions about your order? {BUSINESS.email} · Instagram @we.are.versatile · {BUSINESS.website}
+              Questions about your order? {BUSINESS.email} · WhatsApp {BUSINESS.whatsappDisplay} · Instagram {BUSINESS.instagramHandle} · {BUSINESS.website}
             </p>
             <p className="mt-1 text-[10px] text-neutral-400">
               This is a computer-generated invoice and does not require a physical signature.
