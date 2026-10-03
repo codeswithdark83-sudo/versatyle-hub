@@ -243,6 +243,7 @@ export type Database = {
           description: string
           id: string
           image_url: string
+          images: string[]
           is_active: boolean
           material: string
           name: string
@@ -260,6 +261,7 @@ export type Database = {
           description?: string
           id?: string
           image_url?: string
+          images?: string[]
           is_active?: boolean
           material?: string
           name: string
@@ -277,6 +279,7 @@ export type Database = {
           description?: string
           id?: string
           image_url?: string
+          images?: string[]
           is_active?: boolean
           material?: string
           name?: string

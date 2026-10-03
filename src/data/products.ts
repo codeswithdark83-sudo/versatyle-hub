@@ -13,6 +13,7 @@ export type Product = {
   category: string;
   tags: string[];
   image: string;
+  images: string[];
   description: string;
   material: string;
   colors: string[];

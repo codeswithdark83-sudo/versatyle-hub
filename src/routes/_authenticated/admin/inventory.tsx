@@ -12,6 +12,7 @@ import {
 } from "@/lib/inventory.functions";
 import { CATEGORIES } from "@/data/products";
 import { formatPrice } from "@/lib/cart";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import { Plus, Trash2, PackageX, Boxes } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/inventory")({
@@ -34,7 +35,7 @@ type Draft = {
   colors: string;
   description: string;
   material: string;
-  imageUrl: string;
+  images: string[];
   isActive: boolean;
   sortOrder: string;
   variants: { size: string; stock: string }[];
@@ -50,7 +51,7 @@ const emptyDraft = (): Draft => ({
   colors: "",
   description: "",
   material: "",
-  imageUrl: "",
+  images: [],
   isActive: true,
   sortOrder: "0",
   variants: [
@@ -71,7 +72,7 @@ const toDraft = (p: InventoryProduct): Draft => ({
   colors: p.colors.join(", "),
   description: p.description,
   material: p.material,
-  imageUrl: p.imageUrl,
+  images: p.images,
   isActive: p.isActive,
   sortOrder: String(p.sortOrder),
   variants: p.variants.length
@@ -111,7 +112,7 @@ function InventoryPage() {
           colors: d.colors.split(",").map((t) => t.trim()).filter(Boolean),
           description: d.description,
           material: d.material,
-          imageUrl: d.imageUrl.trim(),
+          images: d.images,
           isActive: d.isActive,
           sortOrder: Number(d.sortOrder) || 0,
           variants: d.variants
@@ -223,8 +224,8 @@ function InventoryPage() {
             <article key={p.id} className="border border-border bg-card p-5">
               <div className="flex flex-wrap items-start gap-4">
                 <div className="size-20 shrink-0 bg-muted overflow-hidden">
-                  {p.imageUrl ? (
-                    <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
+                  {p.images[0] ? (
+                    <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full grid place-items-center text-foreground/30">
                       <Boxes className="size-5" strokeWidth={1.5} />
@@ -397,9 +398,6 @@ function ProductForm({
             className={inputCls}
           />
         </Field>
-        <Field label="Image URL">
-          <input value={draft.imageUrl} onChange={(e) => set("imageUrl", e.target.value)} className={inputCls} />
-        </Field>
         <Field label="Material">
           <input value={draft.material} onChange={(e) => set("material", e.target.value)} className={inputCls} />
         </Field>
@@ -409,6 +407,13 @@ function ProductForm({
         <Field label="Tags (comma separated)">
           <input value={draft.tags} onChange={(e) => set("tags", e.target.value)} className={inputCls} />
         </Field>
+      </div>
+
+      <div className="mt-6">
+        <span className="eyebrow text-foreground/60">Product photos</span>
+        <div className="mt-2 grid">
+          <ImageUploader images={draft.images} onChange={(v) => set("images", v)} slug={draft.slug} />
+        </div>
       </div>
 
       <Field label="Description">

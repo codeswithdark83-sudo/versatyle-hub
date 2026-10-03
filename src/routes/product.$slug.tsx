@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductGallery } from "@/components/ProductGallery";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { formatPrice, useCart } from "@/lib/cart";
 import { GST_PERCENT, RETURN_WINDOW_DAYS } from "@/lib/pricing";
@@ -72,15 +73,7 @@ function ProductPage() {
       </nav>
 
       <section className="max-w-[1440px] mx-auto px-6 py-12 grid md:grid-cols-2 gap-12 md:gap-20">
-        <div className="bg-muted aspect-[3/4] overflow-hidden outline outline-1 -outline-offset-1 outline-border">
-          <img
-            src={product.image}
-            alt={product.name}
-            width={900}
-            height={1200}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <ProductGallery images={product.images.length ? product.images : [product.image]} name={product.name} />
 
         <div className="flex flex-col md:pt-8">
           <p className="eyebrow text-foreground/50 mb-3">{product.category}</p>

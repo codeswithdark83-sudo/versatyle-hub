@@ -25,6 +25,15 @@ export function ProductCard({ product, priority = false }: { product: Product; p
           loading={priority ? "eager" : "lazy"}
           className="w-full h-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
         />
+        {product.images?.[1] && (
+          <img
+            src={product.images[1]}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          />
+        )}
         <span className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] bg-background/90 backdrop-blur px-4 py-3 eyebrow text-center">
           {soldOut ? "Sold out" : "View piece"}
         </span>

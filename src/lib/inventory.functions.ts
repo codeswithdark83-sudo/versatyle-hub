@@ -34,7 +34,7 @@ const productSchema = z.object({
   colors: z.array(z.string().max(40)).max(20).default([]),
   description: z.string().max(4000).default(""),
   material: z.string().max(200).default(""),
-  imageUrl: z.string().max(600).default(""),
+  images: z.array(z.string().url().max(600)).max(12).default([]),
   isActive: z.boolean().default(true),
   sortOrder: z.number().int().min(0).max(9999).default(0),
   variants: z.array(variantSchema).min(1).max(30),
@@ -47,7 +47,7 @@ export const listInventory = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("products")
       .select(
-        "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, is_active, sort_order, product_variants(id, size, stock, price, sort_order)",
+        "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, images, is_active, sort_order, product_variants(id, size, stock, price, sort_order)",
       )
       .order("sort_order", { ascending: true });
     if (error) throw new Error(error.message);
@@ -62,7 +62,7 @@ export const listInventory = createServerFn({ method: "GET" })
       colors: (p.colors ?? []) as string[],
       description: (p.description ?? "") as string,
       material: (p.material ?? "") as string,
-      imageUrl: (p.image_url ?? "") as string,
+      images: ((p.images?.length ? p.images : p.image_url ? [p.image_url] : []) ?? []) as string[],
       isActive: p.is_active as boolean,
       sortOrder: p.sort_order as number,
       variants: [...((p.product_variants ?? []) as any[])]
@@ -90,7 +90,8 @@ export const saveProduct = createServerFn({ method: "POST" })
       colors: data.colors,
       description: data.description,
       material: data.material,
-      image_url: data.imageUrl,
+      image_url: data.images[0] ?? "",
+      images: data.images,
       is_active: data.isActive,
       sort_order: data.sortOrder,
     };
