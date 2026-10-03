@@ -36,7 +36,14 @@ export function ProductCard({ product, priority = false }: { product: Product; p
       </motion.div>
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-sm font-medium">{product.name}</p>
-        <p className="text-sm tabular-nums text-foreground/70">{formatPrice(product.price)}</p>
+        <p className="text-sm tabular-nums text-foreground/70">
+          {formatPrice(product.price)}
+          {product.compareAtPrice && product.compareAtPrice > product.price ? (
+            <span className="ml-2 text-xs text-foreground/40 line-through">
+              {formatPrice(product.compareAtPrice)}
+            </span>
+          ) : null}
+        </p>
       </div>
       <p className="eyebrow mt-1 text-foreground/50 !font-medium">{product.category}</p>
     </Link>

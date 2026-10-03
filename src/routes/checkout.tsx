@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { formatPrice, useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { PHONE_ERROR, PHONE_HINT, normalizePhone } from "@/lib/phone";
+import { GST_PERCENT, RETURN_WINDOW_DAYS, gstIncluded } from "@/lib/pricing";
 import { supabase } from "@/integrations/supabase/client";
 import { useAddresses, type Address } from "@/components/AddressBook";
 import {
@@ -130,9 +131,9 @@ function CheckoutPage() {
     }));
   }
 
-  const shipping = items.length === 0 || subtotal >= 150 ? 0 : 15;
-  const tax = Math.round(subtotal * 0.08 * 100) / 100;
-  const total = subtotal + shipping + tax;
+  // Free shipping, GST (5%) already included in the selling price, no extra fees.
+  const total = subtotal;
+  const gst = gstIncluded(total);
 
   // After the popup reports success, prove to our server that the payment is genuine
   // (HMAC signature check) before showing the confirmation page.
@@ -481,13 +482,12 @@ function CheckoutPage() {
             </ul>
             <dl className="space-y-3 text-sm border-t border-border pt-4">
               <Row label={`Subtotal (${itemCount})`} value={formatPrice(subtotal)} />
-              <Row
-                label="Shipping"
-                value={shipping === 0 ? "Free" : formatPrice(shipping)}
-              />
-              <Row label="Estimated tax" value={formatPrice(tax)} />
+              <Row label="Shipping" value="Free" />
               <div className="pt-3 mt-3 border-t border-border">
                 <Row label="Total" value={formatPrice(total)} bold />
+                <p className="mt-1 text-right text-[11px] text-foreground/50">
+                  Inclusive of all taxes · includes {formatPrice(gst)} GST ({GST_PERCENT}%)
+                </p>
               </div>
             </dl>
             {error ? (
@@ -520,7 +520,7 @@ function CheckoutPage() {
               {payMethod === "cod"
                 ? `Pay ${formatPrice(total)} in cash when your order is delivered. Please keep the exact amount ready for the courier.`
                 : "Payments are securely processed by Razorpay. You'll be redirected to a confirmation page once your payment is captured."}{" "}
-              Free shipping in India on orders ₹499+ · 30-day returns on unworn
+              Free shipping on every order · Easy {RETURN_WINDOW_DAYS}-day returns on unworn
               items with tags.
             </p>
 

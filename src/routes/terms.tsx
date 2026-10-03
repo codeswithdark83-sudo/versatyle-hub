@@ -54,7 +54,7 @@ function TermsPage() {
       <PolicySection title="3. Price & payment">
         <PolicyList
           items={[
-            "All prices are shown in Indian Rupees (₹ INR), including for international orders",
+            "All prices are in Indian Rupees (₹ INR) and inclusive of all taxes (5% GST included). No shipping or handling fees are added at checkout",
             "We accept cards, UPI, wallets, bank transfer, and COD (India only)",
             "Payment must be completed before an order is processed",
           ]}

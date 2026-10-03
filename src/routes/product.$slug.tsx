@@ -4,6 +4,7 @@ import { getProductBySlug } from "@/lib/catalog.functions";
 import { ProductCard } from "@/components/ProductCard";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { formatPrice, useCart } from "@/lib/cart";
+import { GST_PERCENT, RETURN_WINDOW_DAYS } from "@/lib/pricing";
 import { Heart, Truck, RotateCcw, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/product/$slug")({
@@ -91,6 +92,9 @@ function ProductPage() {
                 {formatPrice(product.compareAtPrice)}
               </span>
             ) : null}
+          </p>
+          <p className="-mt-1 mb-3 text-[11px] text-foreground/50">
+            Inclusive of all taxes (incl. {GST_PERCENT}% GST) · Free shipping
           </p>
           <p className="eyebrow mb-8 text-foreground/50">
             {product.inStock
@@ -186,8 +190,8 @@ function ProductPage() {
           </div>
 
           <ul className="mt-10 pt-8 border-t border-border grid grid-cols-3 gap-4 text-center">
-            <Feature icon={<Truck className="size-4" strokeWidth={1.5} />} label={`Free shipping over ${formatPrice(150)}`} />
-            <Feature icon={<RotateCcw className="size-4" strokeWidth={1.5} />} label="30-day returns" />
+            <Feature icon={<Truck className="size-4" strokeWidth={1.5} />} label="Free shipping on every order" />
+            <Feature icon={<RotateCcw className="size-4" strokeWidth={1.5} />} label={`Easy ${RETURN_WINDOW_DAYS}-day returns`} />
             <Feature icon={<ShieldCheck className="size-4" strokeWidth={1.5} />} label="Authenticity guaranteed" />
           </ul>
 

@@ -8,12 +8,12 @@ export const Route = createFileRoute("/returns")({
       {
         name: "description",
         content:
-          "30-day returns on unworn Versatile pieces. Free return shipping on defects, refunds in 5-7 business days, plus international return terms.",
+          "Easy 7-day returns on unworn Versatile pieces with no return charges. Refunds in 5-7 business days.",
       },
       { property: "og:title", content: "Return & Refund Policy — Versatile" },
       {
         property: "og:description",
-        content: "30-day returns, free returns on defects, and refunds within 5-7 business days.",
+        content: "Easy 7-day returns with no return charges, and refunds within 5-7 business days.",
       },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -32,7 +32,7 @@ function ReturnsPage() {
       <PolicySection title="For India customers">
         <PolicyTable
           rows={[
-            ["Return window", "30 days from the delivery date."],
+            ["Return window", "7 days from the delivery date."],
             [
               "Condition required",
               <PolicyList
@@ -47,7 +47,7 @@ function ReturnsPage() {
             ],
             [
               "Return shipping",
-              "Free for defective items or our mistakes. Change of mind is ₹80–150, paid by the customer.",
+              "Free. No return charges, whatever the reason for the return.",
             ],
             [
               "Refund timing",
@@ -64,8 +64,8 @@ function ReturnsPage() {
       <PolicySection title="For international customers">
         <PolicyTable
           rows={[
-            ["Return window", "30 days standard · 60 days for loyalty members"],
-            ["Return shipping", "Free for defective items · ₹500 fee for change of mind"],
+            ["Return window", "7 days from the delivery date"],
+            ["Return shipping", "Free. No return charges"],
             ["Refund method", "Original payment method, or store credit with a 5% bonus (optional)"],
           ]}
         />

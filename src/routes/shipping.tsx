@@ -8,7 +8,7 @@ export const Route = createFileRoute("/shipping")({
       {
         name: "description",
         content:
-          "Free shipping in India on orders ₹499+, 2-7 day delivery, and worldwide shipping to the USA, UK, EU, Canada, Australia, Singapore and UAE.",
+          "Free shipping on every order, 2-7 day delivery in India, and worldwide shipping to the USA, UK, EU, Canada, Australia, Singapore and UAE.",
       },
       { property: "og:title", content: "Shipping Policy — Versatile" },
       {
@@ -43,7 +43,7 @@ function ShippingPage() {
                 Remote areas: 5–7 days
               </span>,
             ],
-            ["Shipping cost", "Free for orders ₹499 and above · ₹50 for orders below ₹499"],
+            ["Shipping cost", "Free on every order. No handling fee"],
             ["Carriers", "Delhivery, India Post, Shiprocket"],
             ["Tracking", "Tracking link sent by SMS and email"],
           ]}
@@ -66,7 +66,7 @@ function ShippingPage() {
             ],
             [
               "Shipping cost",
-              "₹750 flat to all regions — free over ₹7,500",
+              "Free on every order. No handling fee",
             ],
             [
               "Customs",

@@ -97,9 +97,8 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
       subtotalUnits += unit * i.quantity;
       return { ...i, name: p.name, price: unit };
     });
-    const shippingUnits = subtotalUnits >= 150 ? 0 : 15;
-    const taxUnits = Math.round(subtotalUnits * 0.08 * 100) / 100;
-    const totalUnits = subtotalUnits + shippingUnits + taxUnits;
+    // Selling price is final: shipping is free and 5% GST is already included.
+    const totalUnits = subtotalUnits;
     const amountMinor = Math.round(totalUnits * 100); // paise
     const currency = "INR";
     // Razorpay rejects anything below 100 paise (₹1).
@@ -218,9 +217,8 @@ export const createCodOrder = createServerFn({ method: "POST" })
       subtotalUnits += unit * i.quantity;
       return { ...i, name: p.name, price: unit };
     });
-    const shippingUnits = subtotalUnits >= 150 ? 0 : 15;
-    const taxUnits = Math.round(subtotalUnits * 0.08 * 100) / 100;
-    const totalUnits = subtotalUnits + shippingUnits + taxUnits;
+    // Selling price is final: shipping is free and 5% GST is already included.
+    const totalUnits = subtotalUnits;
     const amountMinor = Math.round(totalUnits * 100);
 
     let userId: string | null = null;

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import type { TablesUpdate } from "@/integrations/supabase/types";
+import { RETURN_WINDOW_DAYS } from "@/lib/pricing";
 
 const RETURN_STATUSES = [
   "requested",
@@ -82,8 +83,8 @@ export const createReturnRequest = createServerFn({ method: "POST" })
     }
     if (order.delivered_at) {
       const days = (Date.now() - new Date(order.delivered_at).getTime()) / 86_400_000;
-      if (days > 7) {
-        throw new Error("The 7-day return window for this order has closed.");
+      if (days > RETURN_WINDOW_DAYS) {
+        throw new Error(`The ${RETURN_WINDOW_DAYS}-day return window for this order has closed.`);
       }
     }
 

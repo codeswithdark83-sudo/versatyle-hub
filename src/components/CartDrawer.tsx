@@ -108,7 +108,7 @@ export function CartDrawer() {
               <span className="text-foreground/60">Subtotal</span>
               <span className="tabular-nums">{formatPrice(subtotal)}</span>
             </div>
-            <p className="text-[11px] text-foreground/50">Shipping & taxes calculated at checkout.</p>
+            <p className="text-[11px] text-foreground/50">Free shipping · inclusive of all taxes.</p>
             <Link
               to="/cart"
               onClick={() => setOpen(false)}

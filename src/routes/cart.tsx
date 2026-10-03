@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Minus, Plus } from "lucide-react";
 import { formatPrice, useCart } from "@/lib/cart";
+import { GST_PERCENT, RETURN_WINDOW_DAYS, gstIncluded } from "@/lib/pricing";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -15,9 +16,8 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { items, subtotal, updateQuantity, removeItem, itemCount } = useCart();
-  const shipping = items.length === 0 || subtotal >= 150 ? 0 : 15;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
+  const total = subtotal; // free shipping, GST included, no extra fees
+  const gst = gstIncluded(total);
 
   return (
     <div className="max-w-[1200px] mx-auto px-6 py-16 md:py-24">
@@ -87,10 +87,12 @@ function CartPage() {
               <h2 className="font-serif text-2xl">Order Summary</h2>
               <dl className="space-y-3 text-sm">
                 <Row label={`Subtotal (${itemCount} items)`} value={formatPrice(subtotal)} />
-                <Row label="Shipping" value={shipping === 0 ? "Free" : formatPrice(shipping)} />
-                <Row label="Estimated tax" value={formatPrice(tax)} />
+                <Row label="Shipping" value="Free" />
                 <div className="pt-3 mt-3 border-t border-border">
                   <Row label="Total" value={formatPrice(total)} bold />
+                  <p className="mt-1 text-right text-[11px] text-foreground/50">
+                    Inclusive of all taxes · includes {formatPrice(gst)} GST ({GST_PERCENT}%)
+                  </p>
                 </div>
               </dl>
               <Link
@@ -100,7 +102,7 @@ function CartPage() {
                 Proceed to Checkout
               </Link>
               <p className="text-[11px] text-foreground/50 leading-relaxed">
-                Free shipping on orders over {formatPrice(150)}. Taxes calculated at checkout.
+                Free shipping on every order. Prices include {GST_PERCENT}% GST. Easy {RETURN_WINDOW_DAYS}-day returns.
               </p>
             </div>
           </aside>
