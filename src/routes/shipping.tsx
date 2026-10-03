@@ -85,6 +85,15 @@ function ShippingPage() {
           ]}
         />
       </PolicySection>
+
+      <PolicySection title="Cancelling an order">
+        <PolicyList
+          items={[
+            "You can cancel an order yourself any time before it is shipped, from Profile → Your orders → Cancel order",
+            "Once an order has been shipped it cannot be cancelled. You can return it within 7 days of delivery instead",
+          ]}
+        />
+      </PolicySection>
     </PolicyPage>
   );
 }

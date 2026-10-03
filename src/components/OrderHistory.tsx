@@ -4,7 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { Package, Check, X, RotateCcw, Clock, ChevronDown, Truck, Home } from "lucide-react";
 import { toast } from "sonner";
-import { listMyOrders } from "@/lib/orders.functions";
+import { listMyOrders, cancelMyOrder } from "@/lib/orders.functions";
+import { canCancelOrder } from "@/lib/order-cancel";
 import { createReturnRequest, listMyReturnRequests } from "@/lib/returns.functions";
 
 
@@ -289,6 +290,71 @@ function ReturnPanel({
   );
 }
 
+function CancelPanel({ orderId, paidOnline }: { orderId: string; paidOnline: boolean }) {
+  const cancel = useServerFn(cancelMyOrder);
+  const qc = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+  const mutation = useMutation({
+    mutationFn: () => cancel({ data: { orderId } }),
+    onSuccess: (r) => {
+      toast.success(
+        r.refunded
+          ? "Order cancelled. Your refund is on its way (5–7 business days)."
+          : "Order cancelled.",
+      );
+      setConfirming(false);
+      qc.invalidateQueries({ queryKey: ["orders", "mine"] });
+    },
+    onError: (e: Error) => {
+      toast.error(e.message);
+      setConfirming(false);
+      qc.invalidateQueries({ queryKey: ["orders", "mine"] });
+    },
+  });
+  return (
+    <div className="border-t border-border px-5 py-4">
+      {!confirming ? (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-foreground/50">
+            You can cancel until your order is shipped. After that it can't be cancelled.
+          </p>
+          <button
+            onClick={() => setConfirming(true)}
+            className="eyebrow border border-border px-4 py-2.5 hover:bg-accent"
+          >
+            Cancel order
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-sm">
+            Cancel this order?{" "}
+            {paidOnline
+              ? "Your payment will be refunded to the original payment method in 5–7 business days."
+              : "No payment is due."}
+          </p>
+          <div className="flex gap-2">
+            <button
+              disabled={mutation.isPending}
+              onClick={() => mutation.mutate()}
+              className="eyebrow bg-foreground text-background px-4 py-2.5 disabled:opacity-50"
+            >
+              {mutation.isPending ? "Cancelling…" : "Yes, cancel order"}
+            </button>
+            <button
+              disabled={mutation.isPending}
+              onClick={() => setConfirming(false)}
+              className="eyebrow border border-border px-4 py-2.5"
+            >
+              Keep order
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function OrderHistory() {
   const fetchOrders = useServerFn(listMyOrders);
   const fetchReturns = useServerFn(listMyReturnRequests);
@@ -353,7 +419,7 @@ export function OrderHistory() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <StatusBadge status={o.status} />
+                    <StatusBadge status={o.status} fulfillment={o.fulfillment_status} />
                     <button
                       onClick={() => setOpen(expanded ? null : o.id)}
                       aria-label={expanded ? "Hide details" : "Show details"}
@@ -369,7 +435,7 @@ export function OrderHistory() {
                 </div>
 
                 <div className="px-5 pb-5">
-                  <Tracker status={o.status} />
+                  <Tracker status={o.status} fulfillment={o.fulfillment_status} />
                 </div>
 
                 {expanded && (
@@ -425,6 +491,10 @@ export function OrderHistory() {
                       )}
                     </div>
                   </div>
+                )}
+
+                {canCancelOrder(o) && (
+                  <CancelPanel orderId={o.id} paidOnline={o.payment_method !== "cod"} />
                 )}
 
                 <ReturnPanel

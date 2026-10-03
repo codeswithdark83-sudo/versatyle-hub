@@ -57,6 +57,7 @@ function TermsPage() {
             "All prices are in Indian Rupees (₹ INR) and inclusive of all taxes (5% GST included). No shipping or handling fees are added at checkout",
             "We accept cards, UPI, wallets, bank transfer, and COD (India only)",
             "Payment must be completed before an order is processed",
+            "Orders can be cancelled by the customer only before they are shipped (Profile → Your orders → Cancel order). Once shipped, an order cannot be cancelled; the 7-day return policy applies after delivery. Prepaid cancellations are refunded in full within 5–7 business days",
           ]}
         />
       </PolicySection>

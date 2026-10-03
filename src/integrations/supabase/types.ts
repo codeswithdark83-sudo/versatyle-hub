@@ -437,6 +437,7 @@ export type Database = {
     }
     Functions: {
       consume_order_stock: { Args: { _order_id: string }; Returns: undefined }
+      restock_order_stock: { Args: { _order_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
