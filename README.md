@@ -68,7 +68,7 @@ It was designed and built as a **freelance project** for the Versatile brand, ta
 | Feature | Details |
 | --- | --- |
 | Home page | Hero, category collections, featured products, moving brand ticker ("We are Versatile · Crafted in Limited Runs · New Arrival") |
-| Welcome splash | One-time branded intro animation shown to first-time visitors, then the site |
+| Welcome splash | Branded intro animation shown once per browser session, then the site |
 | Shop | Category filter (All / Men / Women / Accessories) and sorting (featured, price low→high, price high→low) |
 | Product page | Multi-photo gallery with thumbnails and arrows, price with MRP strike-through, GST-inclusive note, colour and size selectors, live stock messages ("Only 3 left in XS"), sold-out handling, reviews |
 | Product cards | Cover photo, second photo on hover, sold-out badge, MRP strike-through |
@@ -117,7 +117,7 @@ It was designed and built as a **freelance project** for the Versatile brand, ta
 | **Overview** | Revenue, orders, paid orders, average order value, conversion, customers; 14-day revenue chart; orders by status |
 | **Orders** | See every order with items, shipping address and payment details; update payment & fulfilment stage; add courier, tracking number/link, estimated delivery and internal notes; full audit trail of changes |
 | **Contact tools** | One-tap **Call**, **E-mail** (pre-filled), **WhatsApp** and **Copy number** for each customer, right inside orders and returns |
-| **Returns** | Review return/replacement requests, change status (approved, pickup scheduled, received, refunded…), write a note to the customer; stock is restocked when a return is completed |
+| **Returns** | Review return/replacement requests, change status (approved, pickup scheduled, received, refunded…), write a note to the customer, and optionally put returned pieces back into stock |
 | **Inventory** | Create / edit / hide / delete products; set price in ₹, compare-at (MRP) price, category, colours, tags, material, description, sort order; **sizes with stock per size**; quick stock updates; **upload up to 12 photos from the device** (drag & drop, reorder, set cover) |
 | **Customers** | Customer list with order counts and spend |
 
@@ -278,8 +278,8 @@ versatyle-hub/
 | `/shop` | Shop with filters and sorting | Public |
 | `/product/:slug` | Product detail, gallery, reviews | Public |
 | `/cart` | Bag | Public |
-| `/checkout` | Shipping details + payment | Signed-in customers |
-| `/order/success?orderId=…` | Order confirmation + invoice button | Order owner |
+| `/checkout` | Shipping details + payment | Public (signing in saves the phone number to the profile and links the order to the account) |
+| `/order/success?orderId=…` | Order confirmation; invoice button for the signed-in owner | Anyone with the order link |
 | `/auth` | Sign in / sign up / Google | Public |
 | `/account` | Profile, addresses, order history, returns | Signed in |
 | `/invoice/:orderId` | Printable invoice | Order owner |
@@ -385,7 +385,7 @@ COD      confirmed (stock reserved) ─▶ packed ─▶ shipped ─▶ out for 
 | COD order placed | `fulfillment_status = confirmed`, stock reduced immediately |
 | Customer cancels (before shipped) | `fulfillment_status = cancelled`, stock restored, Razorpay refund for paid orders, audit event |
 | Admin updates stage / tracking | Order patched, `shipped_at` / `delivered_at` set, audit event written |
-| Return completed | Stock restored via `restock_return_request` |
+| Return received (admin chooses *restock*) | Stock restored once via `restock_return_request` |
 
 ---
 
