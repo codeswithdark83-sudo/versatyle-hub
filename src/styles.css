@@ -310,3 +310,11 @@ html[data-splash="seen"] .welcome-splash {
     display: none;
   }
 }
+
+/* Printing (invoices): hide site chrome, keep the sheet only */
+@media print {
+  header, footer, nav, .no-print { display: none !important; }
+  body, main { background: #fff !important; }
+  .invoice-sheet { border: 0 !important; padding: 0 !important; }
+  @page { margin: 14mm; }
+}

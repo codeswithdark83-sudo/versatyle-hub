@@ -108,3 +108,63 @@ export const cancelMyOrder = createServerFn({ method: "POST" })
 
     return { ok: true, refunded };
   });
+
+// Invoice data for one of the signed-in customer's own orders.
+export const getMyInvoice = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: { orderId: string }) => {
+    if (!d || typeof d.orderId !== "string" || !/^[0-9a-f-]{36}$/i.test(d.orderId)) {
+      throw new Error("Invalid order.");
+    }
+    return d;
+  })
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = (context.claims as { email?: string } | null)?.email ?? null;
+    const { data: o, error } = await supabaseAdmin
+      .from("orders")
+      .select(
+        "id, user_id, email, amount_cents, currency, status, payment_method, fulfillment_status, razorpay_payment_id, items, shipping_address, created_at",
+      )
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!o || (o.user_id !== context.userId && !(email && o.email === email))) {
+      throw new Error("Order not found.");
+    }
+    const issued =
+      o.fulfillment_status !== "cancelled" &&
+      (o.payment_method === "cod" ? o.status !== "failed" : o.status === "paid" || o.status === "refunded");
+    if (!issued) throw new Error("An invoice is available once your order is confirmed.");
+
+    const rawItems = (Array.isArray(o.items) ? o.items : []) as Array<Record<string, unknown>>;
+    const items = rawItems.map((i) => ({
+      name: String(i.name ?? i.slug ?? "Item"),
+      size: String(i.size ?? ""),
+      color: String(i.color ?? ""),
+      quantity: Number(i.quantity ?? 1),
+      price: typeof i.price === "number" ? i.price : null,
+    }));
+    const a = (o.shipping_address ?? {}) as Record<string, string>;
+    return {
+      id: o.id,
+      email: o.email,
+      createdAt: o.created_at,
+      currency: o.currency,
+      totalRupees: o.amount_cents / 100,
+      paymentMethod: o.payment_method,
+      paymentRef: o.razorpay_payment_id,
+      paid: o.payment_method !== "cod",
+      items,
+      address: {
+        fullName: a.fullName ?? "",
+        line1: a.line1 ?? "",
+        line2: a.line2 ?? "",
+        city: a.city ?? "",
+        state: a.state ?? "",
+        postalCode: a.postalCode ?? "",
+        country: a.country ?? "",
+        phone: a.phone ?? "",
+      },
+    };
+  });
