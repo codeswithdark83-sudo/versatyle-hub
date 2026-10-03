@@ -57,6 +57,25 @@ function ReturnsPage() {
         />
       </PolicySection>
 
+      <PolicySection title="Order cancellation">
+        <PolicyTable
+          rows={[
+            [
+              "Before shipping",
+              "You can cancel your order yourself from Profile → Your orders using the “Cancel order” button, any time before it is shipped.",
+            ],
+            [
+              "After shipping",
+              "Once an order has been shipped, it can no longer be cancelled. You can still return it under our 7-day return policy after delivery.",
+            ],
+            [
+              "Refund on cancellation",
+              "Prepaid orders are refunded in full to the original payment method within 5–7 business days. Cash on delivery orders involve no payment, so nothing is charged.",
+            ],
+          ]}
+        />
+      </PolicySection>
+
       <PolicySection title="Final sale items (non-refundable)">
         <PolicyList items={["Clearance items marked “FINAL SALE”", "Custom made-to-order products"]} />
       </PolicySection>
