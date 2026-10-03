@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Banknote, Check, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatPrice, useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
@@ -423,37 +424,58 @@ function CheckoutPage() {
 
           <section className="space-y-4">
             <h2 className="font-serif text-2xl">Payment Method</h2>
-            <div className="grid sm:grid-cols-2 gap-3">
-              <label
-                className={`border p-4 cursor-pointer ${payMethod === "online" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
-              >
-                <input
-                  type="radio"
-                  name="payMethod"
-                  className="sr-only"
-                  checked={payMethod === "online"}
-                  onChange={() => setPayMethod("online")}
-                />
-                <span className="block font-medium mb-1">Pay online</span>
-                <span className="block text-sm text-foreground/60">
-                  UPI, cards, netbanking and wallets — secured by Razorpay.
-                </span>
-              </label>
-              <label
-                className={`border p-4 cursor-pointer ${payMethod === "cod" ? "border-foreground" : "border-border hover:border-foreground/40"}`}
-              >
-                <input
-                  type="radio"
-                  name="payMethod"
-                  className="sr-only"
-                  checked={payMethod === "cod"}
-                  onChange={() => setPayMethod("cod")}
-                />
-                <span className="block font-medium mb-1">Cash on delivery</span>
-                <span className="block text-sm text-foreground/60">
-                  Pay in cash to the courier when your order arrives.
-                </span>
-              </label>
+            <div className="grid sm:grid-cols-2 gap-4" role="radiogroup" aria-label="Payment method">
+              {(
+                [
+                  {
+                    id: "online" as const,
+                    title: "Pay online",
+                    note: "UPI, cards, netbanking and wallets — secured by Razorpay.",
+                    Icon: CreditCard,
+                  },
+                  {
+                    id: "cod" as const,
+                    title: "Cash on delivery",
+                    note: "Pay in cash to the courier when your order arrives.",
+                    Icon: Banknote,
+                  },
+                ]
+              ).map(({ id, title, note, Icon }) => {
+                const on = payMethod === id;
+                return (
+                  <label
+                    key={id}
+                    className={`relative flex gap-4 items-start p-5 cursor-pointer border-2 transition-colors ${
+                      on
+                        ? "border-foreground bg-foreground text-background shadow-lg"
+                        : "border-foreground/30 bg-card hover:border-foreground"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="payMethod"
+                      className="sr-only"
+                      checked={on}
+                      onChange={() => setPayMethod(id)}
+                    />
+                    <Icon className="size-7 shrink-0 mt-0.5" strokeWidth={1.5} />
+                    <span className="flex-1">
+                      <span className="block text-base font-semibold mb-1">{title}</span>
+                      <span className={`block text-sm ${on ? "text-background/80" : "text-foreground/65"}`}>
+                        {note}
+                      </span>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className={`size-6 shrink-0 rounded-full border-2 grid place-items-center ${
+                        on ? "border-background bg-background text-foreground" : "border-foreground/40"
+                      }`}
+                    >
+                      {on && <Check className="size-4" strokeWidth={3} />}
+                    </span>
+                  </label>
+                );
+              })}
             </div>
           </section>
         </div>

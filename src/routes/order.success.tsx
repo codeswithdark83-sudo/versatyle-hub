@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { getOrderStatus } from "@/lib/checkout.functions";
 import { formatPrice } from "@/lib/cart";
+import { InvoiceButton } from "@/components/InvoiceButton";
 
 const searchSchema = z.object({ orderId: z.string().uuid() });
 
@@ -192,6 +193,16 @@ function OrderSuccessPage() {
           </address>
         </section>
       ) : null}
+
+      {!pending && (
+        <div className="mb-10 border border-foreground/20 p-5 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium">Your invoice is ready</p>
+            <p className="text-xs text-foreground/55">Save it as a PDF for your records. You can also find it later in your order history.</p>
+          </div>
+          <InvoiceButton orderId={order.id} />
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-6 border-t border-foreground/10 pt-8">
         <Link to="/account" className="eyebrow border-b border-foreground pb-1">

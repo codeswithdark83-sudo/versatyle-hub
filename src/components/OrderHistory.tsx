@@ -6,6 +6,7 @@ import { Package, Check, X, RotateCcw, Clock, ChevronDown, Truck, Home } from "l
 import { toast } from "sonner";
 import { listMyOrders, cancelMyOrder } from "@/lib/orders.functions";
 import { canCancelOrder } from "@/lib/order-cancel";
+import { InvoiceButton } from "@/components/InvoiceButton";
 import { createReturnRequest, listMyReturnRequests } from "@/lib/returns.functions";
 
 
@@ -492,6 +493,16 @@ export function OrderHistory() {
                     </div>
                   </div>
                 )}
+
+                {o.fulfillment_status !== "cancelled" &&
+                  (o.payment_method === "cod"
+                    ? o.status !== "failed"
+                    : o.status === "paid" || o.status === "refunded") && (
+                    <div className="border-t border-border px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-xs text-foreground/50">Invoice for this order</p>
+                      <InvoiceButton orderId={o.id} />
+                    </div>
+                  )}
 
                 {canCancelOrder(o) && (
                   <CancelPanel orderId={o.id} paidOnline={o.payment_method !== "cod"} />
