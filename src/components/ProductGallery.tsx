@@ -18,7 +18,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
           alt={`${name} — photo ${idx + 1}`}
           width={900}
           height={1200}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
         {list.length > 1 && (
           <>
@@ -57,7 +57,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
                   k === idx ? "border-foreground" : "border-border opacity-70 hover:opacity-100"
                 }`}
               >
-                <img src={src} alt="" loading="lazy" className="w-full h-full object-cover" />
+                <img src={src} alt="" loading="lazy" className="w-full h-full object-contain" />
               </button>
             </li>
           ))}
