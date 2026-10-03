@@ -311,10 +311,12 @@ html[data-splash="seen"] .welcome-splash {
   }
 }
 
-/* Printing (invoices): hide site chrome, keep the sheet only */
+/* Printing (invoices): hide site chrome (the invoice itself uses <div>s, not header/footer), keep the sheet only */
 @media print {
-  header, footer, nav, .no-print { display: none !important; }
-  body, main { background: #fff !important; }
-  .invoice-sheet { border: 0 !important; padding: 0 !important; }
-  @page { margin: 14mm; }
+  body > * header, footer, nav, .no-print { display: none !important; }
+  html, body, .bg-background { background: #fff !important; color: #000 !important; }
+  .invoice-sheet, .invoice-sheet * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .invoice-wrap { padding: 0 !important; max-width: none !important; }
+  .invoice-sheet { border: 0 !important; min-width: 0 !important; }
+  @page { margin: 8mm; }
 }
