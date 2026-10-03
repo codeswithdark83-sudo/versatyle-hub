@@ -20,7 +20,7 @@ export function publicClient() {
 }
 
 export const PRODUCT_SELECT =
-  "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, sort_order, product_variants(size, stock, price, sort_order)";
+  "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, images, sort_order, product_variants(size, stock, price, sort_order)";
 
 export type ProductRow = {
   id: string;
@@ -34,6 +34,7 @@ export type ProductRow = {
   description: string | null;
   material: string | null;
   image_url: string | null;
+  images: string[] | null;
   sort_order: number;
   product_variants: { size: string; stock: number; price: number | null; sort_order: number }[] | null;
 };
@@ -42,6 +43,8 @@ export function toProduct(row: ProductRow): Product {
   const variants = [...(row.product_variants ?? [])]
     .sort((a, b) => a.sort_order - b.sort_order || a.size.localeCompare(b.size))
     .map((v) => ({ size: v.size, stock: v.stock, price: v.price }));
+  const gallery = (row.images ?? []).filter(Boolean);
+  const images = gallery.length ? gallery : row.image_url ? [row.image_url] : [];
   const totalStock = variants.reduce((n, v) => n + v.stock, 0);
   return {
     id: row.id,
@@ -54,7 +57,8 @@ export function toProduct(row: ProductRow): Product {
     colors: row.colors ?? [],
     description: row.description ?? "",
     material: row.material ?? "",
-    image: row.image_url ?? "",
+    image: images[0] ?? "",
+    images,
     sizes: variants.map((v) => v.size),
     variants,
     totalStock,
