@@ -109,17 +109,7 @@ export function Footer() {
         </div>
 
       </div>
-      <div className="max-w-[1440px] mx-auto pt-8 border-t border-brand-offwhite/10 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p className="eyebrow text-brand-offwhite/40 !font-medium">
-          © {new Date().getFullYear()} Versatile Studio. Own Your Story. · {BUSINESS.email}
-        </p>
-        <div className="flex gap-8 eyebrow text-brand-offwhite/40 !font-medium">
-          <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
-          <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
-          <Link to="/returns" className="hover:text-accent transition-colors">Returns</Link>
-        </div>
-      </div>
-      <p className="max-w-[1440px] mx-auto mt-6 text-center text-xs text-brand-offwhite/40">
+      <p className="max-w-[1440px] mx-auto mb-8 text-center text-xs text-brand-offwhite/40">
         Website designed &amp; developed by{" "}
         <a
           href={BUSINESS.developerUrl}
@@ -130,6 +120,16 @@ export function Footer() {
           {BUSINESS.developerName}
         </a>
       </p>
+      <div className="max-w-[1440px] mx-auto pt-8 border-t border-brand-offwhite/10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p className="eyebrow text-brand-offwhite/40 !font-medium">
+          © {new Date().getFullYear()} Versatile Studio. Own Your Story. · {BUSINESS.email}
+        </p>
+        <div className="flex gap-8 eyebrow text-brand-offwhite/40 !font-medium">
+          <Link to="/privacy" className="hover:text-accent transition-colors">Privacy</Link>
+          <Link to="/terms" className="hover:text-accent transition-colors">Terms</Link>
+          <Link to="/returns" className="hover:text-accent transition-colors">Returns</Link>
+        </div>
+      </div>
     </footer>
   );
 }
