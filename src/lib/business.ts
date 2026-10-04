@@ -10,6 +10,8 @@ export const BUSINESS = {
   whatsappNumber: "919205773248", // digits only, with country code
   instagramUrl: "https://www.instagram.com/we.are.versatile",
   instagramHandle: "@we.are.versatile",
+  developerName: "Jatin Kr. Koli",
+  developerUrl: "https://linktr.ee/codeswithjatin",
   gstin: "",
   address: "",
 };
