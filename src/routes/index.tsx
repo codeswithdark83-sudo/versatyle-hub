@@ -186,61 +186,6 @@ function Home() {
           </div>
         </Reveal>
       </section>
-
-      {/* SALE STRIP */}
-      <section className="py-20 border-t border-border">
-        <Reveal className="max-w-[1280px] mx-auto px-6 md:px-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <p className="eyebrow text-foreground/60 mb-2">Seasonal Archive</p>
-            <h2 className="font-serif text-4xl md:text-5xl leading-tight">
-              Up to <span className="italic">40% off</span> essentials.
-            </h2>
-          </div>
-          <Link
-            to="/shop"
-            className="eyebrow bg-foreground text-background px-10 py-4 hover:bg-foreground/85 transition-colors"
-          >
-            Shop the Sale
-          </Link>
-        </Reveal>
-      </section>
-
-
-      {/* NEWSLETTER */}
-      <section className="py-24 border-t border-border">
-        <Reveal className="max-w-2xl mx-auto px-6 text-center">
-          <p className="eyebrow text-foreground/60 mb-4">The Circle</p>
-          <h2 className="font-serif text-4xl md:text-5xl mb-4">
-            Correspondence, <span className="italic">quietly</span>.
-          </h2>
-
-          <p className="text-sm text-foreground/60 mb-10">
-            Occasional letters on new pieces, editorial notes, and private previews.
-          </p>
-          <form
-            className="flex flex-col md:flex-row gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              (e.currentTarget.elements.namedItem("email") as HTMLInputElement).value = "";
-            }}
-          >
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Your email address"
-              className="flex-1 bg-transparent border-b border-foreground/25 py-3 px-2 text-sm focus:outline-none focus:border-foreground transition-colors"
-            />
-            <button
-              type="submit"
-              className="eyebrow py-3 px-8 border border-foreground hover:bg-foreground hover:text-background transition-all"
-            >
-              Subscribe
-            </button>
-          </form>
-        </Reveal>
-
-      </section>
     </>
   );
 }
