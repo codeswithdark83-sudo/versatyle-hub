@@ -164,7 +164,11 @@ export const updateOrderStatus = createServerFn({ method: "POST" })
         fulfillmentStatus: fulfillmentEnum.optional(),
         carrier: z.string().max(80).nullish(),
         trackingNumber: z.string().max(120).nullish(),
-        trackingUrl: z.string().url().max(500).nullish().or(z.literal("")),
+        trackingUrl: z
+          .string()
+          .max(500)
+          .refine((v) => v === "" || /^https?:\/\/\S+$/i.test(v), "Tracking link must start with http:// or https://")
+          .nullish(),
         estimatedDelivery: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullish().or(z.literal("")),
         adminNote: z.string().max(1000).nullish(),
       })

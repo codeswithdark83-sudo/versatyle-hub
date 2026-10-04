@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
-import { Package, Check, X, RotateCcw, Clock, ChevronDown, Truck, Home } from "lucide-react";
+import { Package, Check, X, RotateCcw, Clock, ChevronDown, Truck, Home, Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { listMyOrders, cancelMyOrder } from "@/lib/orders.functions";
 import { canCancelOrder } from "@/lib/order-cancel";
@@ -356,6 +356,101 @@ function CancelPanel({ orderId, paidOnline }: { orderId: string; paidOnline: boo
   );
 }
 
+const dateOnly = (v: string) =>
+  new Date(/^\d{4}-\d{2}-\d{2}$/.test(v) ? `${v}T00:00:00` : v).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+type DeliveryOrder = {
+  status: string;
+  fulfillment_status?: string | null;
+  carrier?: string | null;
+  tracking_number?: string | null;
+  tracking_url?: string | null;
+  estimated_delivery?: string | null;
+  admin_note?: string | null;
+  shipped_at?: string | null;
+  delivered_at?: string | null;
+};
+
+function DeliveryDetails({ o }: { o: DeliveryOrder }) {
+  const f = o.fulfillment_status ?? "pending";
+  if (f === "cancelled" || o.status === "failed") return null;
+  const safeUrl = o.tracking_url && /^https?:\/\//i.test(o.tracking_url) ? o.tracking_url : null;
+  const shipped = ["shipped", "out_for_delivery", "delivered"].includes(f);
+  const hasAny = o.carrier || o.tracking_number || safeUrl || o.estimated_delivery || o.admin_note;
+  if (!hasAny && shipped === false) {
+    return (
+      <div className="mx-5 mb-5 border border-dashed border-border px-4 py-3 text-xs text-foreground/55">
+        Courier and tracking details will appear here as soon as your order is shipped.
+      </div>
+    );
+  }
+  if (!hasAny) return null;
+
+  const rows: [string, React.ReactNode][] = [];
+  if (o.carrier) rows.push(["Courier partner", o.carrier]);
+  if (o.tracking_number) {
+    rows.push([
+      "Tracking number",
+      <span key="t" className="inline-flex items-center gap-2">
+        <span className="tabular-nums break-all">{o.tracking_number}</span>
+        <button
+          type="button"
+          aria-label="Copy tracking number"
+          onClick={() => {
+            navigator.clipboard
+              ?.writeText(o.tracking_number as string)
+              .then(() => toast.success("Tracking number copied"))
+              .catch(() => toast.error("Could not copy"));
+          }}
+          className="p-1 hover:bg-accent"
+        >
+          <Copy className="h-3.5 w-3.5" />
+        </button>
+      </span>,
+    ]);
+  }
+  if (o.estimated_delivery) {
+    rows.push([f === "delivered" ? "Estimated delivery was" : "Estimated delivery", dateOnly(o.estimated_delivery)]);
+  }
+  if (o.shipped_at) rows.push(["Shipped on", dateOnly(o.shipped_at)]);
+  if (o.delivered_at) rows.push(["Delivered on", dateOnly(o.delivered_at)]);
+
+  return (
+    <div className="mx-5 mb-5 border border-border p-4">
+      <p className="eyebrow text-foreground/50 mb-3">Delivery details</p>
+      <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2 text-sm">
+        {rows.map(([k, v]) => (
+          <div key={k}>
+            <dt className="text-xs text-foreground/50">{k}</dt>
+            <dd className="mt-0.5">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {safeUrl && (
+        <a
+          href={safeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-2 eyebrow bg-foreground text-background px-4 py-2.5 hover:opacity-90"
+        >
+          <ExternalLink className="h-4 w-4" />
+          Track shipment
+        </a>
+      )}
+      {o.admin_note && (
+        <p className="mt-4 border-t border-border pt-3 text-sm text-foreground/70">
+          <span className="eyebrow text-foreground/50 block mb-1">Note from Versatile</span>
+          {o.admin_note}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function OrderHistory() {
   const fetchOrders = useServerFn(listMyOrders);
   const fetchReturns = useServerFn(listMyReturnRequests);
@@ -364,6 +459,7 @@ export function OrderHistory() {
     queryKey: ["orders", "mine"],
     queryFn: () => fetchOrders({}),
     retry: false,
+    refetchInterval: 60_000,
   });
   const { data: returns } = useQuery({
     queryKey: ["returns", "mine"],
@@ -438,6 +534,8 @@ export function OrderHistory() {
                 <div className="px-5 pb-5">
                   <Tracker status={o.status} fulfillment={o.fulfillment_status} />
                 </div>
+
+                <DeliveryDetails o={o} />
 
                 {expanded && (
                   <div className="border-t border-border px-5 py-5 grid gap-6 sm:grid-cols-2">
