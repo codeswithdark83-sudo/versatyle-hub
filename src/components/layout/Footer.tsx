@@ -24,7 +24,7 @@ function InstagramIcon({ className = "size-5" }: { className?: string }) {
 export function Footer() {
   return (
     <footer className="bg-brand-charcoal text-brand-offwhite pt-20 pb-12 px-6">
-      <div className="max-w-[1440px] mx-auto grid md:grid-cols-[1.2fr_0.8fr_0.8fr_0.9fr_1.6fr] gap-12 mb-20">
+      <div className="max-w-[1440px] mx-auto grid sm:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr_0.9fr_1.6fr] gap-12 mb-20">
         <div>
           <h4 className="flex items-center gap-2.5 font-serif text-xl tracking-tight uppercase mb-6">
             <LogoMark />

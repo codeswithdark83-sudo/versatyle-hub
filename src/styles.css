@@ -122,6 +122,7 @@ html.dark {
   }
 
   body {
+    overflow-x: clip;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
