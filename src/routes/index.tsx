@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 const hero = "/images/hero.jpg";
+const heroBanner = "/images/hero-banner.jpg";
 const collectionMen = "/images/collection-men.jpg";
 const collectionWomen = "/images/collection-women.jpg";
 
@@ -81,48 +82,48 @@ function Home() {
 
   return (
     <>
-      {/* HERO — editorial split */}
+      {/* HERO — full-bleed photo, nav floats over it */}
       <section className="relative border-b border-border">
-        <div className="max-w-[1440px] mx-auto grid md:grid-cols-12 gap-8 md:gap-12 px-6 md:px-10 pt-20 md:pt-28 pb-16 md:pb-24">
-          <div className="md:col-span-6 flex flex-col justify-center order-2 md:order-1 animate-fade-up">
-            <p className="eyebrow text-foreground/60 mb-8">Autumn / Winter — Volume 07</p>
-            <h1 className="font-serif text-6xl md:text-7xl lg:text-[8.5rem] leading-[0.92] tracking-tight mb-8">
-              Wear
-              <br />
-              your <span className="italic font-light">style</span>.
-            </h1>
-            <p className="max-w-md text-base md:text-lg text-foreground/70 leading-relaxed mb-10">
-              A quiet manifesto in cloth and cut. Versatile is a study of the modern wardrobe — considered, unhurried, made to last.
-            </p>
-            <div className="flex items-center gap-8">
-              <Link
-                to="/shop"
-                className="eyebrow bg-foreground text-background px-8 py-4 hover:bg-foreground/85 transition-colors"
-              >
-                Shop the Collection
-              </Link>
-              <Link to="/shop" className="eyebrow link-underline pb-1">
-                The Journal →
-              </Link>
-            </div>
-          </div>
-          <div className="md:col-span-6 order-1 md:order-2 relative animate-fade-in-slow">
-            <div className="aspect-[4/5] overflow-hidden bg-muted">
-              <img
-                src={hero}
-                alt="Model in a minimalist wool coat"
-                width={1200}
-                height={1500}
-                className="w-full h-full object-cover animate-ken-burns"
-              />
-            </div>
-            <div className="hidden md:flex absolute -left-6 top-6 flex-col gap-2 items-start">
-              <span className="eyebrow text-foreground/60 [writing-mode:vertical-rl] rotate-180">
-                Est. Versatile — MMXXV
-              </span>
-            </div>
-            <div className="absolute -bottom-4 right-4 bg-background px-4 py-2 border border-border">
-              <p className="eyebrow">N° 001 / Coat</p>
+        <div className="relative isolate overflow-hidden bg-[#0b0b0c] h-[100svh] min-h-[620px] max-h-[960px] md:max-h-[1000px]">
+          <img
+            src={heroBanner}
+            alt="Versatile oversized tees in off-white and black on a clothing rail, with folded tees and a cap on a stone plinth"
+            width={1459}
+            height={1078}
+            fetchPriority="high"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] sm:object-[62%_center] lg:object-[center_right] animate-ken-burns"
+          />
+          {/* Legibility overlays: bottom-up on phones, left-to-right on larger screens */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/50 to-black/10 lg:hidden" />
+          <div className="absolute inset-0 -z-10 hidden lg:block bg-gradient-to-r from-black/75 via-black/30 to-transparent" />
+          <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-black/55 to-transparent" />
+
+          <div className="max-w-[1440px] mx-auto h-full px-6 md:px-10 flex items-end lg:items-center pb-14 lg:pb-0 pt-24">
+            <div className="max-w-[640px] text-brand-offwhite animate-fade-up">
+              <p className="eyebrow text-brand-offwhite/75 mb-5 md:mb-8">Autumn / Winter – Volume 07</p>
+              <h1 className="font-serif text-[3.6rem] sm:text-7xl lg:text-[8rem] xl:text-[8.5rem] leading-[0.92] tracking-tight mb-6 md:mb-8">
+                Wear
+                <br />
+                your <span className="italic font-light">style</span>.
+              </h1>
+              <p className="max-w-sm md:max-w-md text-base md:text-lg text-brand-offwhite/80 leading-relaxed mb-8 md:mb-10">
+                Premium quality clothing designed for modern minds. Comfort, style and versatility
+                — all in one place.
+              </p>
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+                <Link
+                  to="/shop"
+                  className="eyebrow inline-flex items-center gap-3 bg-brand-offwhite text-brand-charcoal px-7 md:px-8 py-4 hover:bg-white transition-colors"
+                >
+                  Shop the Collection <span aria-hidden="true">→</span>
+                </Link>
+                <Link
+                  to="/shop"
+                  className="eyebrow link-underline pb-1 text-brand-offwhite"
+                >
+                  The Journal →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
