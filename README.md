@@ -556,11 +556,11 @@ Other scripts: `npm run lint` · `npm run format` · `npm run preview`.
 
 This store was designed, developed and deployed as a **freelance project** for the **Versatile** brand.
 
-**Developer:** [codeswithdark83](https://github.com/codeswithdark83-sudo) — freelance full-stack web developer.
+**Developer:** Jatin Kr. Koli ([@codeswithdark83](https://github.com/codeswithdark83-sudo)) — freelance full-stack web developer. Portfolio and links: [linktr.ee/codeswithjatin](https://linktr.ee/codeswithjatin).
 
 **Scope of work delivered:** UI/UX and branding integration, React + TanStack Start application, Supabase database design with security policies, authentication, Razorpay payment integration, admin dashboard and operations tools, policy content, deployment on Vercel with a custom domain, and go-live support.
 
-Interested in a similar store or custom web application? Get in touch through the developer's GitHub profile above.
+Interested in a similar store or custom web application? Get in touch through [linktr.ee/codeswithjatin](https://linktr.ee/codeswithjatin).
 
 ---
 

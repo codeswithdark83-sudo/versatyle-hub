@@ -119,6 +119,17 @@ export function Footer() {
           <Link to="/returns" className="hover:text-accent transition-colors">Returns</Link>
         </div>
       </div>
+      <p className="max-w-[1440px] mx-auto mt-6 text-center text-xs text-brand-offwhite/40">
+        Website designed &amp; developed by{" "}
+        <a
+          href={BUSINESS.developerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand-offwhite/70 underline underline-offset-4 decoration-brand-offwhite/30 hover:text-accent hover:decoration-accent transition-colors"
+        >
+          {BUSINESS.developerName}
+        </a>
+      </p>
     </footer>
   );
 }
