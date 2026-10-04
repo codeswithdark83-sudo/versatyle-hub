@@ -300,3 +300,50 @@ export const listAdminCustomers = createServerFn({ method: "GET" })
       spentCents: statsMap.get(p.id)?.spentCents ?? 0,
     }));
   });
+
+// Admin: download orders (customer, product, payment, delivery details) as a CSV file.
+export const exportOrdersCsv = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
+        to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
+        paymentMode: z.enum(["all", "online", "cod"]).default("all"),
+        paymentStatus: z.enum(["all", "created", "paid", "failed", "refunded"]).default("all"),
+        fulfillment: fulfillmentEnum.or(z.literal("all")).default("all"),
+        layout: z.enum(["items", "orders"]).default("items"),
+      })
+      .parse(d ?? {}),
+  )
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { buildOrdersCsv } = await import("./order-export");
+
+    const PAGE = 1000;
+    const MAX_ORDERS = 50000;
+    const all: Parameters<typeof buildOrdersCsv>[0] = [];
+    for (let start = 0; start < MAX_ORDERS; start += PAGE) {
+      let q = supabaseAdmin
+        .from("orders")
+        .select(
+          "id, email, amount_cents, status, payment_method, fulfillment_status, carrier, tracking_number, tracking_url, estimated_delivery, admin_note, shipped_at, delivered_at, razorpay_order_id, razorpay_payment_id, items, shipping_address, created_at",
+        )
+        .order("created_at", { ascending: true })
+        .range(start, start + PAGE - 1);
+      // Dates are interpreted in Indian Standard Time.
+      if (data.from) q = q.gte("created_at", `${data.from}T00:00:00+05:30`);
+      if (data.to) q = q.lte("created_at", `${data.to}T23:59:59.999+05:30`);
+      if (data.paymentMode === "cod") q = q.eq("payment_method", "cod");
+      if (data.paymentMode === "online") q = q.neq("payment_method", "cod");
+      if (data.paymentStatus !== "all") q = q.eq("status", data.paymentStatus);
+      if (data.fulfillment !== "all") q = q.eq("fulfillment_status", data.fulfillment);
+      const { data: rows, error } = await q;
+      if (error) throw new Error(error.message);
+      all.push(...((rows ?? []) as typeof all));
+      if (!rows || rows.length < PAGE) break;
+    }
+    const { csv, rows } = buildOrdersCsv(all, data.layout);
+    return { csv, orderCount: all.length, rowCount: rows };
+  });

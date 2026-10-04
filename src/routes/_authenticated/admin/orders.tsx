@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { listAdminOrders, listOrderEvents, updateOrderStatus } from "@/lib/admin.functions";
 import { ContactActions } from "@/components/admin/ContactActions";
+import { ExportOrders } from "@/components/admin/ExportOrders";
 import { formatPhone } from "@/lib/phone";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
@@ -96,6 +97,7 @@ function OrdersPage() {
 
   return (
     <div className="space-y-6">
+      <ExportOrders />
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex flex-wrap gap-1 border border-border p-1">
           {PAY_STATUSES.map((s) => (
