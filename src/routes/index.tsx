@@ -99,27 +99,27 @@ function Home() {
           <div className="absolute inset-x-0 top-0 -z-10 h-32 bg-gradient-to-b from-black/55 to-transparent" />
 
           <div className="max-w-[1440px] mx-auto h-full px-6 md:px-10 flex items-end lg:items-center pb-14 lg:pb-0 pt-24">
-            <div className="max-w-[640px] text-brand-offwhite animate-fade-up">
-              <p className="eyebrow text-brand-offwhite/75 mb-5 md:mb-8">Autumn / Winter – Volume 07</p>
+            <div className="max-w-[640px] text-[#f5f3ee] animate-fade-up">
+              <p className="eyebrow text-[#f5f3ee]/75 mb-5 md:mb-8">Autumn / Winter – Volume 07</p>
               <h1 className="font-serif text-[3.6rem] sm:text-7xl lg:text-[8rem] xl:text-[8.5rem] leading-[0.92] tracking-tight mb-6 md:mb-8">
                 Wear
                 <br />
                 your <span className="italic font-light">style</span>.
               </h1>
-              <p className="max-w-sm md:max-w-md text-base md:text-lg text-brand-offwhite/80 leading-relaxed mb-8 md:mb-10">
+              <p className="max-w-sm md:max-w-md text-base md:text-lg text-[#f5f3ee]/80 leading-relaxed mb-8 md:mb-10">
                 Premium quality clothing designed for modern minds. Comfort, style and versatility
                 — all in one place.
               </p>
               <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
                 <Link
                   to="/shop"
-                  className="eyebrow inline-flex items-center gap-3 bg-brand-offwhite text-brand-charcoal px-7 md:px-8 py-4 hover:bg-white transition-colors"
+                  className="eyebrow inline-flex items-center gap-3 bg-[#f5f3ee] text-[#141414] px-7 md:px-8 py-4 hover:bg-white transition-colors"
                 >
                   Shop the Collection <span aria-hidden="true">→</span>
                 </Link>
                 <Link
                   to="/shop"
-                  className="eyebrow link-underline pb-1 text-brand-offwhite"
+                  className="eyebrow link-underline pb-1 text-[#f5f3ee]"
                 >
                   The Journal →
                 </Link>
