@@ -8,6 +8,7 @@ import { PHONE_ERROR, PHONE_HINT, normalizePhone } from "@/lib/phone";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { AddressBook } from "@/components/AddressBook";
 import { OrderHistory } from "@/components/OrderHistory";
+import { InstallApp } from "@/components/InstallApp";
 
 export const Route = createFileRoute("/_authenticated/account")({
   head: () => ({ meta: [{ title: "My account — Versatile" }] }),
@@ -77,6 +78,8 @@ function AccountPage() {
           Open admin dashboard →
         </Link>
       )}
+
+      <InstallApp />
 
       {loading ? (
         <p className="mt-10 text-sm text-foreground/50">Loading…</p>
