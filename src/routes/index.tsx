@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 const hero = "/images/hero.jpg";
 const heroBanner = "/images/hero-banner.jpg";
 const chapterEssentials = "/images/chapter-essentials.jpg";
-const collectionMen = "/images/collection-men.jpg";
 
 import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
@@ -54,19 +53,7 @@ function Home() {
   const chapters: Chapter[] = [
     {
       no: "01",
-      eyebrow: "Chapter One — Outerwear",
-      title: "The Winter Edit",
-      body: "Structured wool, considered proportion. A quiet study in warmth built for the long walk home.",
-      image: collectionMen,
-      alt: "Model in a black oversized hoodie and joggers against a dark concrete wall",
-      to: "/shop",
-      search: { category: "men" },
-      cta: "Explore the edit",
-      layout: "image-left",
-    },
-    {
-      no: "02",
-      eyebrow: "Chapter Two — The Essentials",
+      eyebrow: "Chapter One — The Essentials",
       title: "More Than Just Clothes.",
       body: "Versatile is about comfort, confidence and everyday style. Designed for real life, made for every you.",
       image: chapterEssentials,
@@ -76,8 +63,8 @@ function Home() {
       layout: "wide",
     },
     {
-      no: "03",
-      eyebrow: "Chapter Three — Everyday",
+      no: "02",
+      eyebrow: "Chapter Two — Everyday",
       title: "Considered Basics",
       body: "The building blocks. Fabrics chosen for how they age, cuts drawn for how they live.",
       image: hero,
