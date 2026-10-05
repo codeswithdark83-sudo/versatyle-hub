@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-const hero = "/images/hero.jpg";
 const heroBanner = "/images/hero-banner.jpg";
+const chapterEssentials = "/images/chapter-essentials.jpg";
 const collectionMen = "/images/collection-men.jpg";
 const collectionWomen = "/images/collection-women.jpg";
 
@@ -51,32 +51,43 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const newArrivals = Route.useLoaderData().slice(0, 4);
-  const zigzag = [
+  const chapters: Chapter[] = [
     {
       no: "01",
       eyebrow: "Chapter One — Outerwear",
       title: "The Winter Edit",
       body: "Structured wool, considered proportion. A quiet study in warmth built for the long walk home.",
       image: collectionMen,
+      alt: "Model in a black oversized hoodie and joggers",
+      layout: "panel",
+      side: "left",
+      cta: "Explore the edit",
       to: "/shop",
       search: { category: "men" },
     },
     {
       no: "02",
-      eyebrow: "Chapter Two — Silhouette",
-      title: "Fluid Lines",
-      body: "Drape, weight, and movement. Pieces cut to fall, not to force — for a wardrobe that breathes.",
-      image: collectionWomen,
+      eyebrow: "Chapter Two — The Essentials",
+      title: "More Than Just Clothes",
+      body: "Versatile is about comfort, confidence and everyday style. Designed for real life, made for every you.",
+      image: chapterEssentials,
+      alt: "Model in an off-white tee and black trousers sitting on stone steps beside a Versatile duffel bag",
+      layout: "banner",
+      cta: "Explore collection",
       to: "/shop",
-      search: { category: "women" },
     },
     {
       no: "03",
-      eyebrow: "Chapter Three — Everyday",
-      title: "Considered Basics",
-      body: "The building blocks. Fabrics chosen for how they age, cuts drawn for how they live.",
-      image: hero,
+      eyebrow: "Chapter Three — Silhouette",
+      title: "Fluid Lines",
+      body: "Drape, weight, and movement. Pieces cut to fall, not to force — for a wardrobe that breathes.",
+      image: collectionWomen,
+      alt: "Model in a rose-coloured hoodie and joggers",
+      layout: "panel",
+      side: "right",
+      cta: "Explore the edit",
       to: "/shop",
+      search: { category: "women" },
     },
   ];
 
@@ -137,14 +148,10 @@ function Home() {
         </div>
       </section>
 
-      {/* ZIGZAG CHAPTERS */}
-      <section className="py-24 md:py-32 px-6 md:px-10">
-        <div className="max-w-[1280px] mx-auto space-y-24 md:space-y-40">
-          {zigzag.map((c, i) => (
-            <ZigRow key={c.no} chapter={c} reverse={i % 2 === 1} />
-          ))}
-        </div>
-      </section>
+      {/* CHAPTERS — full-bleed editorial scenes */}
+      {chapters.map((c) => (
+        <ChapterScene key={c.no} chapter={c} total={chapters.length} />
+      ))}
 
       {/* NEW ARRIVALS */}
       <section className="py-24 md:py-28 border-t border-border">
@@ -191,63 +198,112 @@ function Home() {
   );
 }
 
-function ZigRow({
-  chapter,
-  reverse,
-}: {
-  chapter: {
-    no: string;
-    eyebrow: string;
-    title: string;
-    body: string;
-    image: string;
-    to: string;
-    search?: Record<string, string>;
-  };
-  reverse: boolean;
-}) {
+type Chapter = {
+  no: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  image: string;
+  alt: string;
+  layout: "banner" | "panel";
+  side?: "left" | "right";
+  cta: string;
+  to: string;
+  search?: Record<string, string>;
+};
+
+function ChapterText({ chapter, className = "" }: { chapter: Chapter; className?: string }) {
   return (
-    <div className="grid md:grid-cols-12 gap-8 md:gap-16 items-center">
-      <Reveal
-        y={40}
-        className={`md:col-span-7 ${reverse ? "md:order-2" : ""}`}
-      >
-        <Link to={chapter.to} search={chapter.search} className="group block relative">
-          <div className="aspect-[5/6] overflow-hidden bg-muted">
-            <img
-              src={chapter.image}
-              alt={chapter.title}
-              width={1200}
-              height={1440}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.045]"
-            />
-          </div>
-          <span className="absolute top-4 left-4 eyebrow bg-background/90 backdrop-blur px-3 py-1.5">
-            {chapter.no}
-          </span>
+    <div className={`text-[#f5f3ee] ${className}`}>
+      <Reveal>
+        <p className="eyebrow text-[#f5f3ee]/80 mb-5 md:mb-6">{chapter.eyebrow}</p>
+      </Reveal>
+      <h3 className="font-serif text-5xl sm:text-6xl lg:text-7xl leading-[0.98] tracking-tight mb-6">
+        <RevealWords text={chapter.title} delay={0.1} italicLast />
+      </h3>
+      <Reveal delay={0.18}>
+        <p className="text-base md:text-lg text-[#f5f3ee]/70 leading-relaxed mb-8 md:mb-10 max-w-md">
+          {chapter.body}
+        </p>
+        <Link
+          to={chapter.to}
+          search={chapter.search}
+          className="eyebrow link-underline pb-2 inline-block text-[#f5f3ee]"
+        >
+          {chapter.cta} →
         </Link>
       </Reveal>
-      <div className={`md:col-span-5 ${reverse ? "md:order-1 md:pr-8" : "md:pl-8"}`}>
-        <Reveal delay={0.08}>
-          <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
-        </Reveal>
-        <h3 className="font-serif text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6">
-          <RevealWords text={chapter.title} delay={0.12} italicLast />
-        </h3>
+    </div>
+  );
+}
 
-        <Reveal delay={0.2}>
-          <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
-          <Link
-            to={chapter.to}
-            search={chapter.search}
-            className="eyebrow link-underline pb-1 inline-block"
-          >
-            Explore the edit →
-          </Link>
-        </Reveal>
-
+/** Small editorial details (progress counter and corner captions) — large screens only. */
+function ChapterDetails({ no, total }: { no: string; total: number }) {
+  return (
+    <div className="hidden lg:block pointer-events-none absolute inset-0 text-[#f5f3ee]">
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 eyebrow !text-[11px]">
+        <span className="font-semibold">{no}</span>
+        <span className="h-12 w-px bg-[#f5f3ee]/40" />
+        <span className="text-[#f5f3ee]/50">{String(total).padStart(2, "0")}</span>
+      </div>
+      <div className="absolute left-10 bottom-8 flex flex-col gap-1 eyebrow !text-[10px] text-[#f5f3ee]/60">
+        <span>— Premium quality</span>
+        <span>— Everyday wear</span>
+      </div>
+      <div className="absolute right-8 bottom-8 text-right flex flex-col gap-1 eyebrow !text-[10px] text-[#f5f3ee]/60">
+        <span>Versatile</span>
+        <span>Est. 2024</span>
       </div>
     </div>
+  );
+}
+
+function ChapterScene({ chapter, total }: { chapter: Chapter; total: number }) {
+  if (chapter.layout === "banner") {
+    return (
+      <section className="relative bg-[#0b0b0c] border-t border-white/5 overflow-hidden">
+        <div className="relative isolate flex min-h-[max(88svh,700px)] lg:min-h-[92svh] lg:max-h-[960px]">
+          <img
+            src={chapter.image}
+            alt={chapter.alt}
+            width={1871}
+            height={841}
+            loading="lazy"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[25%_center] sm:object-[22%_center] lg:object-[30%_center]"
+          />
+          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent lg:hidden" />
+          <div className="absolute inset-0 -z-10 hidden lg:block bg-gradient-to-l from-black/50 via-transparent to-transparent" />
+          <div className="relative w-full max-w-[1440px] mx-auto px-6 md:px-10 grid lg:grid-cols-12 items-end lg:items-center pt-32 pb-14 lg:py-24">
+            <ChapterText chapter={chapter} className="lg:col-start-7 lg:col-span-6 xl:col-start-8 xl:col-span-5" />
+          </div>
+          <ChapterDetails no={chapter.no} total={total} />
+        </div>
+      </section>
+    );
+  }
+
+  const imageLeft = chapter.side !== "right";
+  return (
+    <section className="relative bg-[#0b0b0c] border-t border-white/5 overflow-hidden">
+      <div className="grid lg:grid-cols-2 lg:min-h-[92svh]">
+        <div
+          className={`relative h-[72svh] sm:h-[78svh] lg:h-auto bg-[#0b0b0c] ${imageLeft ? "" : "lg:order-2"}`}
+        >
+          <img
+            src={chapter.image}
+            alt={chapter.alt}
+            width={1200}
+            height={1440}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover object-top"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0b0b0c] to-transparent lg:hidden" />
+        </div>
+        <div className="relative flex items-center px-6 md:px-10 lg:px-20 py-14 lg:py-24 -mt-16 lg:mt-0">
+          <ChapterText chapter={chapter} className="relative max-w-xl" />
+          <ChapterDetails no={chapter.no} total={total} />
+        </div>
+      </div>
+    </section>
   );
 }
