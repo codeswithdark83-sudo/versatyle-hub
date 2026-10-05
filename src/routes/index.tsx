@@ -1,9 +1,9 @@
 import { Fragment } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+const hero = "/images/hero.jpg";
 const heroBanner = "/images/hero-banner.jpg";
 const chapterEssentials = "/images/chapter-essentials.jpg";
 const collectionMen = "/images/collection-men.jpg";
-const collectionWomen = "/images/collection-women.jpg";
 
 import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
@@ -58,36 +58,33 @@ function Home() {
       title: "The Winter Edit",
       body: "Structured wool, considered proportion. A quiet study in warmth built for the long walk home.",
       image: collectionMen,
-      alt: "Model in a black oversized hoodie and joggers",
-      layout: "panel",
-      side: "left",
-      cta: "Explore the edit",
+      alt: "Model in a black oversized hoodie and joggers against a dark concrete wall",
       to: "/shop",
       search: { category: "men" },
+      cta: "Explore the edit",
+      layout: "image-left",
     },
     {
       no: "02",
       eyebrow: "Chapter Two — The Essentials",
-      title: "More Than Just Clothes",
+      title: "More Than Just Clothes.",
       body: "Versatile is about comfort, confidence and everyday style. Designed for real life, made for every you.",
       image: chapterEssentials,
       alt: "Model in an off-white tee and black trousers sitting on stone steps beside a Versatile duffel bag",
-      layout: "banner",
-      cta: "Explore collection",
       to: "/shop",
+      cta: "Explore collection",
+      layout: "wide",
     },
     {
       no: "03",
-      eyebrow: "Chapter Three — Silhouette",
-      title: "Fluid Lines",
-      body: "Drape, weight, and movement. Pieces cut to fall, not to force — for a wardrobe that breathes.",
-      image: collectionWomen,
-      alt: "Model in a rose-coloured hoodie and joggers",
-      layout: "panel",
-      side: "right",
-      cta: "Explore the edit",
+      eyebrow: "Chapter Three — Everyday",
+      title: "Considered Basics",
+      body: "The building blocks. Fabrics chosen for how they age, cuts drawn for how they live.",
+      image: hero,
+      alt: "Model in a minimalist wool coat",
       to: "/shop",
-      search: { category: "women" },
+      cta: "Explore the basics",
+      layout: "image-right",
     },
   ];
 
@@ -148,10 +145,12 @@ function Home() {
         </div>
       </section>
 
-      {/* CHAPTERS — full-bleed editorial scenes */}
-      {chapters.map((c) => (
-        <ChapterScene key={c.no} chapter={c} total={chapters.length} />
-      ))}
+      {/* CINEMATIC CHAPTERS */}
+      <div>
+        {chapters.map((c, i) => (
+          <ChapterPanel key={c.no} chapter={c} index={i} total={chapters.length} />
+        ))}
+      </div>
 
       {/* NEW ARRIVALS */}
       <section className="py-24 md:py-28 border-t border-border">
@@ -205,104 +204,118 @@ type Chapter = {
   body: string;
   image: string;
   alt: string;
-  layout: "banner" | "panel";
-  side?: "left" | "right";
-  cta: string;
   to: string;
   search?: Record<string, string>;
+  cta: string;
+  layout: "image-left" | "image-right" | "wide";
 };
 
-function ChapterText({ chapter, className = "" }: { chapter: Chapter; className?: string }) {
-  return (
-    <div className={`text-[#f5f3ee] ${className}`}>
-      <Reveal>
-        <p className="eyebrow text-[#f5f3ee]/80 mb-5 md:mb-6">{chapter.eyebrow}</p>
-      </Reveal>
-      <h3 className="font-serif text-5xl sm:text-6xl lg:text-7xl leading-[0.98] tracking-tight mb-6">
-        <RevealWords text={chapter.title} delay={0.1} italicLast />
-      </h3>
-      <Reveal delay={0.18}>
-        <p className="text-base md:text-lg text-[#f5f3ee]/70 leading-relaxed mb-8 md:mb-10 max-w-md">
-          {chapter.body}
-        </p>
-        <Link
-          to={chapter.to}
-          search={chapter.search}
-          className="eyebrow link-underline pb-2 inline-block text-[#f5f3ee]"
-        >
-          {chapter.cta} →
-        </Link>
-      </Reveal>
-    </div>
-  );
-}
+/**
+ * Full-bleed chapter panel. Phones/tablets: photo fills the panel and the copy sits at the
+ * bottom over a dark fade. Desktop (lg+): copy sits on one side; portrait photos fill the
+ * other half, the landscape photo ("wide") spans the whole panel.
+ * Colours are fixed (not theme tokens) because the panel is always a dark photograph.
+ */
+function ChapterPanel({
+  chapter,
+  index,
+  total,
+}: {
+  chapter: Chapter;
+  index: number;
+  total: number;
+}) {
+  const wide = chapter.layout === "wide";
+  const imageLeft = chapter.layout === "image-left";
+  const textRight = wide || imageLeft;
+  const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Small editorial details (progress counter and corner captions) — large screens only. */
-function ChapterDetails({ no, total }: { no: string; total: number }) {
-  return (
-    <div className="hidden lg:block pointer-events-none absolute inset-0 text-[#f5f3ee]">
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 eyebrow !text-[11px]">
-        <span className="font-semibold">{no}</span>
-        <span className="h-12 w-px bg-[#f5f3ee]/40" />
-        <span className="text-[#f5f3ee]/50">{String(total).padStart(2, "0")}</span>
-      </div>
-      <div className="absolute left-10 bottom-8 flex flex-col gap-1 eyebrow !text-[10px] text-[#f5f3ee]/60">
-        <span>— Premium quality</span>
-        <span>— Everyday wear</span>
-      </div>
-      <div className="absolute right-8 bottom-8 text-right flex flex-col gap-1 eyebrow !text-[10px] text-[#f5f3ee]/60">
-        <span>Versatile</span>
-        <span>Est. 2024</span>
-      </div>
-    </div>
-  );
-}
+  const imgClass = wide
+    ? "inset-0 w-full object-cover object-[30%_center] sm:object-[28%_center] lg:object-[20%_center]"
+    : `inset-y-0 w-full object-cover object-[50%_20%] lg:w-1/2 ${
+        imageLeft ? "lg:left-0" : "lg:right-0"
+      }`;
 
-function ChapterScene({ chapter, total }: { chapter: Chapter; total: number }) {
-  if (chapter.layout === "banner") {
-    return (
-      <section className="relative bg-[#0b0b0c] border-t border-white/5 overflow-hidden">
-        <div className="relative isolate flex min-h-[max(88svh,700px)] lg:min-h-[92svh] lg:max-h-[960px]">
-          <img
-            src={chapter.image}
-            alt={chapter.alt}
-            width={1871}
-            height={841}
-            loading="lazy"
-            className="absolute inset-0 -z-20 h-full w-full object-cover object-[25%_center] sm:object-[22%_center] lg:object-[30%_center]"
-          />
-          <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent lg:hidden" />
-          <div className="absolute inset-0 -z-10 hidden lg:block bg-gradient-to-l from-black/50 via-transparent to-transparent" />
-          <div className="relative w-full max-w-[1440px] mx-auto px-6 md:px-10 grid lg:grid-cols-12 items-end lg:items-center pt-32 pb-14 lg:py-24">
-            <ChapterText chapter={chapter} className="lg:col-start-7 lg:col-span-6 xl:col-start-8 xl:col-span-5" />
-          </div>
-          <ChapterDetails no={chapter.no} total={total} />
-        </div>
-      </section>
-    );
-  }
-
-  const imageLeft = chapter.side !== "right";
   return (
-    <section className="relative bg-[#0b0b0c] border-t border-white/5 overflow-hidden">
-      <div className="grid lg:grid-cols-2 lg:min-h-[92svh]">
+    <section
+      aria-label={chapter.eyebrow}
+      className="relative isolate overflow-hidden bg-[#0b0b0c] text-[#f5f3ee] h-[88svh] lg:h-[100svh] min-h-[600px] max-h-[920px]"
+    >
+      <img
+        src={chapter.image}
+        alt={chapter.alt}
+        width={wide ? 1871 : 1024}
+        height={wide ? 841 : 1200}
+        loading="lazy"
+        className={`absolute -z-20 h-full ${imgClass}`}
+      />
+      {/* Legibility: bottom-up fade on small screens */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/45 to-black/5 lg:hidden" />
+      {/* Desktop: fade the photo into the dark copy side */}
+      {wide ? (
+        <div className="absolute inset-0 -z-10 hidden lg:block bg-gradient-to-r from-transparent from-45% via-black/45 to-black/85" />
+      ) : (
         <div
-          className={`relative h-[72svh] sm:h-[78svh] lg:h-auto bg-[#0b0b0c] ${imageLeft ? "" : "lg:order-2"}`}
-        >
-          <img
-            src={chapter.image}
-            alt={chapter.alt}
-            width={1200}
-            height={1440}
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover object-top"
-          />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0b0b0c] to-transparent lg:hidden" />
+          className={`absolute inset-y-0 -z-10 hidden w-1/2 lg:block ${
+            imageLeft
+              ? "left-0 bg-gradient-to-r from-transparent from-60% to-[#0b0b0c]"
+              : "right-0 bg-gradient-to-l from-transparent from-60% to-[#0b0b0c]"
+          }`}
+        />
+      )}
+
+      <div
+        className={`relative max-w-[1440px] mx-auto h-full px-6 md:px-10 flex items-end pb-14 lg:pb-0 lg:items-center ${
+          textRight ? "lg:justify-end" : "lg:justify-start"
+        }`}
+      >
+        <div className={`w-full max-w-xl lg:w-[42%] ${textRight ? "lg:mr-10 xl:mr-16" : "lg:ml-0"}`}>
+          <Reveal>
+            <p className="eyebrow text-[#f5f3ee]/75 mb-5 md:mb-7">{chapter.eyebrow}</p>
+          </Reveal>
+          <h3 className="font-serif text-5xl sm:text-6xl xl:text-7xl leading-[0.98] tracking-tight mb-6">
+            <RevealWords text={chapter.title} delay={0.1} italicLast />
+          </h3>
+          <Reveal delay={0.18}>
+            <p className="text-base md:text-lg text-[#f5f3ee]/75 leading-relaxed mb-8 max-w-md">
+              {chapter.body}
+            </p>
+            <Link
+              to={chapter.to}
+              search={chapter.search}
+              className="eyebrow link-underline pb-1 inline-block text-[#f5f3ee]"
+            >
+              {chapter.cta} →
+            </Link>
+          </Reveal>
         </div>
-        <div className="relative flex items-center px-6 md:px-10 lg:px-20 py-14 lg:py-24 -mt-16 lg:mt-0">
-          <ChapterText chapter={chapter} className="relative max-w-xl" />
-          <ChapterDetails no={chapter.no} total={total} />
-        </div>
+      </div>
+
+      {/* Desktop-only editorial details */}
+      <div
+        aria-hidden="true"
+        className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 flex-col items-center gap-3 eyebrow text-[#f5f3ee]/50 ${
+          textRight ? "right-10" : "left-1/2 -translate-x-1/2"
+        }`}
+      >
+        <span className="text-[#f5f3ee] font-semibold">{pad(index + 1)}</span>
+        <span className="h-10 w-px bg-[#f5f3ee]/40" />
+        <span>{pad(total)}</span>
+      </div>
+      <div
+        aria-hidden="true"
+        className="hidden lg:block absolute bottom-8 left-10 eyebrow text-[10px] leading-5 text-[#f5f3ee]/60"
+      >
+        — Premium quality
+        <br />— Everyday wear
+      </div>
+      <div
+        aria-hidden="true"
+        className="hidden lg:block absolute bottom-8 right-10 text-right eyebrow text-[10px] leading-5 text-[#f5f3ee]/60"
+      >
+        Versatile
+        <br />
+        Est. 2024
       </div>
     </section>
   );
