@@ -23,6 +23,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { WelcomeSplash } from "@/components/WelcomeSplash";
 import { registerServiceWorker } from "@/lib/pwa";
+import { SiteGate } from "@/components/SiteGate";
+import { getSiteStatus } from "@/lib/site.functions";
 
 
 function NotFoundComponent() {
@@ -126,6 +128,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+  // Tells the whole app (server-rendered too) whether maintenance mode is on. Never blocks the site on failure.
+  loader: async () => {
+    try {
+      return await getSiteStatus();
+    } catch {
+      return { maintenance: false, message: "", isAdmin: false };
+    }
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -148,6 +158,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const siteStatus = Route.useLoaderData();
 
   useEffect(() => {
     registerServiceWorker();
@@ -159,18 +170,20 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <CartProvider>
-            <div className="min-h-screen flex flex-col bg-background text-foreground">
-              <Nav />
-              <main className="flex-1">
-                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                <PageTransition>
-                  <Outlet />
-                </PageTransition>
-              </main>
+            <SiteGate initial={siteStatus}>
+              <div className="min-h-screen flex flex-col bg-background text-foreground">
+                <Nav />
+                <main className="flex-1">
+                  {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                  <PageTransition>
+                    <Outlet />
+                  </PageTransition>
+                </main>
 
-              <Footer />
-            </div>
-            <CartDrawer />
+                <Footer />
+              </div>
+              <CartDrawer />
+            </SiteGate>
             <Toaster />
           </CartProvider>
         </AuthProvider>

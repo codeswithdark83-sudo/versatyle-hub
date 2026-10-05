@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminStats } from "@/lib/admin.functions";
+import { MaintenanceToggle } from "@/components/admin/MaintenanceToggle";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: OverviewPage,
@@ -22,8 +23,18 @@ function OverviewPage() {
     queryFn: () => fn({}),
   });
 
-  if (isLoading) return <p className="text-sm text-foreground/50">Loading…</p>;
-  if (error || !data) return <p className="text-sm text-red-600">Failed to load stats.</p>;
+  if (isLoading || error || !data) {
+    return (
+      <div className="space-y-10">
+        <MaintenanceToggle />
+        {isLoading ? (
+          <p className="text-sm text-foreground/50">Loading…</p>
+        ) : (
+          <p className="text-sm text-red-600">Failed to load stats.</p>
+        )}
+      </div>
+    );
+  }
 
   const kpis = [
     { label: "Revenue", value: formatINR(data.totals.revenueCents) },
@@ -41,6 +52,7 @@ function OverviewPage() {
 
   return (
     <div className="space-y-10">
+      <MaintenanceToggle />
       <section className="grid grid-cols-2 md:grid-cols-3 gap-px bg-border border border-border">
         {kpis.map((k) => (
           <div key={k.label} className="bg-background p-6">
