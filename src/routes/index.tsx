@@ -2,8 +2,8 @@ import { Fragment } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 const hero = "/images/hero.jpg";
 const heroBanner = "/images/hero-banner.jpg";
+const chapterEssentials = "/images/chapter-essentials.jpg";
 const collectionMen = "/images/collection-men.jpg";
-const collectionWomen = "/images/collection-women.jpg";
 
 import { ProductCard } from "@/components/ProductCard";
 import { listProducts } from "@/lib/catalog.functions";
@@ -51,24 +51,29 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const newArrivals = Route.useLoaderData().slice(0, 4);
-  const zigzag = [
+  const chapters: Chapter[] = [
     {
       no: "01",
       eyebrow: "Chapter One — Outerwear",
       title: "The Winter Edit",
       body: "Structured wool, considered proportion. A quiet study in warmth built for the long walk home.",
       image: collectionMen,
+      alt: "Model in a black oversized hoodie and joggers against a dark concrete wall",
       to: "/shop",
       search: { category: "men" },
+      cta: "Explore the edit",
+      layout: "image-left",
     },
     {
       no: "02",
-      eyebrow: "Chapter Two — Silhouette",
-      title: "Fluid Lines",
-      body: "Drape, weight, and movement. Pieces cut to fall, not to force — for a wardrobe that breathes.",
-      image: collectionWomen,
+      eyebrow: "Chapter Two — The Essentials",
+      title: "More Than Just Clothes.",
+      body: "Versatile is about comfort, confidence and everyday style. Designed for real life, made for every you.",
+      image: chapterEssentials,
+      alt: "Model in an off-white tee and black trousers sitting on stone steps beside a Versatile duffel bag",
       to: "/shop",
-      search: { category: "women" },
+      cta: "Explore collection",
+      layout: "wide",
     },
     {
       no: "03",
@@ -76,7 +81,10 @@ function Home() {
       title: "Considered Basics",
       body: "The building blocks. Fabrics chosen for how they age, cuts drawn for how they live.",
       image: hero,
+      alt: "Model in a minimalist wool coat",
       to: "/shop",
+      cta: "Explore the basics",
+      layout: "image-right",
     },
   ];
 
@@ -137,14 +145,12 @@ function Home() {
         </div>
       </section>
 
-      {/* ZIGZAG CHAPTERS */}
-      <section className="py-24 md:py-32 px-6 md:px-10">
-        <div className="max-w-[1280px] mx-auto space-y-24 md:space-y-40">
-          {zigzag.map((c, i) => (
-            <ZigRow key={c.no} chapter={c} reverse={i % 2 === 1} />
-          ))}
-        </div>
-      </section>
+      {/* CINEMATIC CHAPTERS */}
+      <div>
+        {chapters.map((c, i) => (
+          <ChapterPanel key={c.no} chapter={c} index={i} total={chapters.length} />
+        ))}
+      </div>
 
       {/* NEW ARRIVALS */}
       <section className="py-24 md:py-28 border-t border-border">
@@ -191,63 +197,126 @@ function Home() {
   );
 }
 
-function ZigRow({
+type Chapter = {
+  no: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  image: string;
+  alt: string;
+  to: string;
+  search?: Record<string, string>;
+  cta: string;
+  layout: "image-left" | "image-right" | "wide";
+};
+
+/**
+ * Full-bleed chapter panel. Phones/tablets: photo fills the panel and the copy sits at the
+ * bottom over a dark fade. Desktop (lg+): copy sits on one side; portrait photos fill the
+ * other half, the landscape photo ("wide") spans the whole panel.
+ * Colours are fixed (not theme tokens) because the panel is always a dark photograph.
+ */
+function ChapterPanel({
   chapter,
-  reverse,
+  index,
+  total,
 }: {
-  chapter: {
-    no: string;
-    eyebrow: string;
-    title: string;
-    body: string;
-    image: string;
-    to: string;
-    search?: Record<string, string>;
-  };
-  reverse: boolean;
+  chapter: Chapter;
+  index: number;
+  total: number;
 }) {
+  const wide = chapter.layout === "wide";
+  const imageLeft = chapter.layout === "image-left";
+  const textRight = wide || imageLeft;
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  const imgClass = wide
+    ? "inset-0 w-full object-cover object-[30%_center] sm:object-[28%_center] lg:object-[20%_center]"
+    : `inset-y-0 w-full object-cover object-[50%_20%] lg:w-1/2 ${
+        imageLeft ? "lg:left-0" : "lg:right-0"
+      }`;
+
   return (
-    <div className="grid md:grid-cols-12 gap-8 md:gap-16 items-center">
-      <Reveal
-        y={40}
-        className={`md:col-span-7 ${reverse ? "md:order-2" : ""}`}
+    <section
+      aria-label={chapter.eyebrow}
+      className="relative isolate overflow-hidden bg-[#0b0b0c] text-[#f5f3ee] h-[88svh] lg:h-[100svh] min-h-[600px] max-h-[920px]"
+    >
+      <img
+        src={chapter.image}
+        alt={chapter.alt}
+        width={wide ? 1871 : 1024}
+        height={wide ? 841 : 1200}
+        loading="lazy"
+        className={`absolute -z-20 h-full ${imgClass}`}
+      />
+      {/* Legibility: bottom-up fade on small screens */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/45 to-black/5 lg:hidden" />
+      {/* Desktop: fade the photo into the dark copy side */}
+      {wide ? (
+        <div className="absolute inset-0 -z-10 hidden lg:block bg-gradient-to-r from-transparent from-45% via-black/45 to-black/85" />
+      ) : (
+        <div
+          className={`absolute inset-y-0 -z-10 hidden w-1/2 lg:block ${
+            imageLeft
+              ? "left-0 bg-gradient-to-r from-transparent from-60% to-[#0b0b0c]"
+              : "right-0 bg-gradient-to-l from-transparent from-60% to-[#0b0b0c]"
+          }`}
+        />
+      )}
+
+      <div
+        className={`relative max-w-[1440px] mx-auto h-full px-6 md:px-10 flex items-end pb-14 lg:pb-0 lg:items-center ${
+          textRight ? "lg:justify-end" : "lg:justify-start"
+        }`}
       >
-        <Link to={chapter.to} search={chapter.search} className="group block relative">
-          <div className="aspect-[5/6] overflow-hidden bg-muted">
-            <img
-              src={chapter.image}
-              alt={chapter.title}
-              width={1200}
-              height={1440}
-              loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.045]"
-            />
-          </div>
-          <span className="absolute top-4 left-4 eyebrow bg-background/90 backdrop-blur px-3 py-1.5">
-            {chapter.no}
-          </span>
-        </Link>
-      </Reveal>
-      <div className={`md:col-span-5 ${reverse ? "md:order-1 md:pr-8" : "md:pl-8"}`}>
-        <Reveal delay={0.08}>
-          <p className="eyebrow text-foreground/60 mb-6">{chapter.eyebrow}</p>
-        </Reveal>
-        <h3 className="font-serif text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6">
-          <RevealWords text={chapter.title} delay={0.12} italicLast />
-        </h3>
-
-        <Reveal delay={0.2}>
-          <p className="text-base text-foreground/70 leading-relaxed mb-8 max-w-md">{chapter.body}</p>
-          <Link
-            to={chapter.to}
-            search={chapter.search}
-            className="eyebrow link-underline pb-1 inline-block"
-          >
-            Explore the edit →
-          </Link>
-        </Reveal>
-
+        <div className={`w-full max-w-xl lg:w-[42%] ${textRight ? "lg:mr-10 xl:mr-16" : "lg:ml-0"}`}>
+          <Reveal>
+            <p className="eyebrow text-[#f5f3ee]/75 mb-5 md:mb-7">{chapter.eyebrow}</p>
+          </Reveal>
+          <h3 className="font-serif text-5xl sm:text-6xl xl:text-7xl leading-[0.98] tracking-tight mb-6">
+            <RevealWords text={chapter.title} delay={0.1} italicLast />
+          </h3>
+          <Reveal delay={0.18}>
+            <p className="text-base md:text-lg text-[#f5f3ee]/75 leading-relaxed mb-8 max-w-md">
+              {chapter.body}
+            </p>
+            <Link
+              to={chapter.to}
+              search={chapter.search}
+              className="eyebrow link-underline pb-1 inline-block text-[#f5f3ee]"
+            >
+              {chapter.cta} →
+            </Link>
+          </Reveal>
+        </div>
       </div>
-    </div>
+
+      {/* Desktop-only editorial details */}
+      <div
+        aria-hidden="true"
+        className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 flex-col items-center gap-3 eyebrow text-[#f5f3ee]/50 ${
+          textRight ? "right-10" : "left-1/2 -translate-x-1/2"
+        }`}
+      >
+        <span className="text-[#f5f3ee] font-semibold">{pad(index + 1)}</span>
+        <span className="h-10 w-px bg-[#f5f3ee]/40" />
+        <span>{pad(total)}</span>
+      </div>
+      <div
+        aria-hidden="true"
+        className="hidden lg:block absolute bottom-8 left-10 eyebrow text-[10px] leading-5 text-[#f5f3ee]/60"
+      >
+        — Premium quality
+        <br />— Everyday wear
+      </div>
+      <div
+        aria-hidden="true"
+        className="hidden lg:block absolute bottom-8 right-10 text-right eyebrow text-[10px] leading-5 text-[#f5f3ee]/60"
+      >
+        Versatile
+        <br />
+        Est. 2024
+      </div>
+    </section>
   );
 }
