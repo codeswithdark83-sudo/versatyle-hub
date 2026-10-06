@@ -71,6 +71,8 @@ export const getRazorpayPublicConfig = createServerFn({ method: "GET" }).handler
 export const createRazorpayOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }) => {
+    const { assertStoreOpen } = await import("./maintenance.server");
+    await assertStoreOpen();
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     if (!keyId || !keySecret) {
@@ -198,6 +200,8 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
 export const createCodOrder = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }) => {
+    const { assertStoreOpen } = await import("./maintenance.server");
+    await assertStoreOpen();
     const { fetchActiveProducts } = await import("./catalog.server");
     const catalog = new Map((await fetchActiveProducts()).map((p) => [p.slug, p]));
     let subtotalUnits = 0;
