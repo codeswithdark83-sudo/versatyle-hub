@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import { ProductCard } from "@/components/ProductCard";
@@ -53,7 +53,8 @@ export const Route = createFileRoute("/product/$slug")({
 
 function ProductPage() {
   const { product, related } = Route.useLoaderData();
-  const { addItem } = useCart();
+  const { addItem, buyNow } = useCart();
+  const navigate = useNavigate();
   const firstAvailable = product.variants.find((v) => v.stock > 0);
   const [size, setSize] = useState(firstAvailable?.size ?? product.sizes[0] ?? "");
   const [color, setColor] = useState(product.colors[0] ?? "");
@@ -157,28 +158,47 @@ function ProductPage() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="space-y-3">
+            <div className="flex gap-3">
+              <button
+                disabled={!canBuy}
+                onClick={() =>
+                  addItem({
+                    slug: product.slug,
+                    name: product.name,
+                    price: unitPrice,
+                    image: product.image,
+                    size,
+                    color,
+                  })
+                }
+                className="flex-1 eyebrow border-2 border-foreground text-foreground py-4 hover:bg-foreground hover:text-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {canBuy ? "Add to Bag" : "Sold out"}
+              </button>
+              <button
+                aria-label="Add to wishlist"
+                className="w-14 border border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
+              >
+                <Heart className="size-4" strokeWidth={1.5} />
+              </button>
+            </div>
             <button
               disabled={!canBuy}
-              onClick={() =>
-                addItem({
+              onClick={() => {
+                buyNow({
                   slug: product.slug,
                   name: product.name,
                   price: unitPrice,
                   image: product.image,
                   size,
                   color,
-                })
-              }
-              className="flex-1 eyebrow bg-foreground text-background py-4 hover:bg-foreground/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                });
+                void navigate({ to: "/checkout", search: { buy: 1 } });
+              }}
+              className="w-full eyebrow border-2 border-foreground bg-foreground text-background py-4 hover:bg-foreground/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {canBuy ? `Add to Bag — ${formatPrice(unitPrice)}` : "Sold out"}
-            </button>
-            <button
-              aria-label="Add to wishlist"
-              className="w-14 border border-foreground flex items-center justify-center hover:bg-foreground hover:text-background transition-colors"
-            >
-              <Heart className="size-4" strokeWidth={1.5} />
+              {canBuy ? `Buy Now — ${formatPrice(unitPrice)}` : "Sold out"}
             </button>
           </div>
 
