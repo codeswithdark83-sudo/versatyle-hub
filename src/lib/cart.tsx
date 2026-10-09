@@ -28,10 +28,15 @@ type CartContextValue = {
   removeItem: (slug: string, size: string, color: string) => void;
   updateQuantity: (slug: string, size: string, color: string, quantity: number) => void;
   clear: () => void;
+  /** "Buy now": a single item bought on its own, without touching the bag. */
+  buyNowItem: CartItem | null;
+  buyNow: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
+  clearBuyNow: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "versatile.cart.v1";
+const BUY_NOW_KEY = "versatile.buynow.v1";
 
 const keyOf = (i: Pick<CartItem, "slug" | "size" | "color">) =>
   `${i.slug}::${i.size}::${i.color}`;
@@ -40,11 +45,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [buyNowItem, setBuyNowItem] = useState<CartItem | null>(null);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setItems(JSON.parse(raw));
+    } catch {
+      /* ignore */
+    }
+    try {
+      // sessionStorage: survives a refresh of the checkout page, but not a new visit.
+      const rawBuy = sessionStorage.getItem(BUY_NOW_KEY);
+      if (rawBuy) setBuyNowItem(JSON.parse(rawBuy));
     } catch {
       /* ignore */
     }
@@ -96,11 +109,43 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => setItems([]), []);
 
+  const buyNow: CartContextValue["buyNow"] = useCallback((item) => {
+    const next: CartItem = { ...item, quantity: item.quantity ?? 1 };
+    setBuyNowItem(next);
+    try {
+      sessionStorage.setItem(BUY_NOW_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const clearBuyNow = useCallback(() => {
+    setBuyNowItem(null);
+    try {
+      sessionStorage.removeItem(BUY_NOW_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const itemCount = items.reduce((n, i) => n + i.quantity, 0);
     const subtotal = items.reduce((n, i) => n + i.price * i.quantity, 0);
-    return { items, itemCount, subtotal, isOpen, setOpen, addItem, removeItem, updateQuantity, clear };
-  }, [items, isOpen, addItem, removeItem, updateQuantity, clear]);
+    return {
+      items,
+      itemCount,
+      subtotal,
+      isOpen,
+      setOpen,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clear,
+      buyNowItem,
+      buyNow,
+      clearBuyNow,
+    };
+  }, [items, isOpen, addItem, removeItem, updateQuantity, clear, buyNowItem, buyNow, clearBuyNow]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

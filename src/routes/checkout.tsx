@@ -14,6 +14,9 @@ import {
 } from "@/lib/checkout.functions";
 
 export const Route = createFileRoute("/checkout")({
+  // /checkout?buy=1 => "Buy now" mode: only the single item chosen on the product page.
+  validateSearch: (search: Record<string, unknown>): { buy?: 1 } =>
+    search.buy === 1 || search.buy === "1" || search.buy === true ? { buy: 1 } : {},
   head: () => ({
     meta: [
       { title: "Checkout — Versatile" },
@@ -67,7 +70,14 @@ function loadRazorpay(): Promise<boolean> {
 }
 
 function CheckoutPage() {
-  const { items, subtotal, itemCount, clear } = useCart();
+  const { items: bagItems, subtotal: bagSubtotal, itemCount: bagCount, clear: clearBag, buyNowItem, clearBuyNow } = useCart();
+  const { buy } = Route.useSearch();
+  const buyNowMode = buy === 1;
+  // In Buy now mode the order is just that one item and the bag stays untouched.
+  const items = buyNowMode ? (buyNowItem ? [buyNowItem] : []) : bagItems;
+  const subtotal = buyNowMode ? (buyNowItem ? buyNowItem.price * buyNowItem.quantity : 0) : bagSubtotal;
+  const itemCount = buyNowMode ? (buyNowItem ? buyNowItem.quantity : 0) : bagCount;
+  const clear = buyNowMode ? clearBuyNow : clearBag;
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -280,7 +290,7 @@ function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="max-w-[900px] mx-auto px-6 py-24 text-center">
-        <p className="font-serif text-3xl mb-3">Your bag is empty.</p>
+        <p className="font-serif text-3xl mb-3">{buyNowMode ? "Nothing to check out." : "Your bag is empty."}</p>
         <Link to="/shop" className="eyebrow border-b border-foreground pb-1">
           Shop the collection
         </Link>
