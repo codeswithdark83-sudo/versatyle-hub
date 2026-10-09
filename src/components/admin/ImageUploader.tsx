@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const BUCKET = "product-images";
 const MAX_IMAGES = 12;
-const MAX_EDGE = 1800;
+const MAX_EDGE = 1400;
 
 // Shrink big phone photos in the browser before upload (keeps pages fast, saves storage).
 async function prepare(file: File): Promise<{ blob: Blob; ext: string }> {
@@ -17,7 +17,7 @@ async function prepare(file: File): Promise<{ blob: Blob; ext: string }> {
     canvas.width = Math.round(bmp.width * scale);
     canvas.height = Math.round(bmp.height * scale);
     canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
-    const blob: Blob | null = await new Promise((r) => canvas.toBlob(r, "image/webp", 0.88));
+    const blob: Blob | null = await new Promise((r) => canvas.toBlob(r, "image/webp", 0.82));
     if (blob && blob.type === "image/webp") return { blob, ext: "webp" };
   } catch {
     /* fall through to original file */

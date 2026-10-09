@@ -78,3 +78,17 @@ export async function fetchActiveProducts(): Promise<Product[]> {
   }
   return (data as unknown as ProductRow[]).map(toProduct);
 }
+
+// Short in-memory cache for the public product listing only. Checkout and admin always use
+// fetchActiveProducts() (live prices and stock). Worst case a browse page is ~30s behind.
+let listCache: { at: number; data: Product[] } | null = null;
+const LIST_TTL_MS = 30_000;
+
+export async function fetchActiveProductsCached(): Promise<Product[]> {
+  const now = Date.now();
+  if (listCache && now - listCache.at < LIST_TTL_MS) return listCache.data;
+  const data = await fetchActiveProducts();
+  // Don't cache an empty result: it is usually a failed/slow query, retry next time.
+  if (data.length > 0) listCache = { at: now, data };
+  return data;
+}
