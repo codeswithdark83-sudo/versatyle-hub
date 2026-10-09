@@ -96,6 +96,9 @@ function Shop() {
         <p className="text-center py-24 text-foreground/60">No pieces in this category yet.</p>
       ) : (
         <Stagger
+          // Remount when the filter changes so the reveal animation replays for the new items;
+          // without this the newly mounted cards stay invisible (opacity 0) until a refresh.
+          key={category}
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 gap-y-14"
           step={0.06}
         >
