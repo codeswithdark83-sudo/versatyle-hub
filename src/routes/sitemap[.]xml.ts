@@ -1,14 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
-import { fetchActiveProducts } from "@/lib/catalog.server";
+import { fetchActiveProductsCached } from "@/lib/catalog.server";
 
-const BASE_URL = "";
+// Sitemaps MUST contain absolute URLs (https://host/path). Relative ones make Google report
+// "Couldn't fetch". www is the canonical host of the live site.
+const BASE_URL = "https://www.versatilehub.in";
+
+const escapeXml = (v: string) =>
+  v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const products = await fetchActiveProducts();
+        // Never fail the whole sitemap just because the product query hiccupped.
+        const products = await fetchActiveProductsCached().catch(() => []);
+        const today = new Date().toISOString().slice(0, 10);
         const entries = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
           { path: "/shop", changefreq: "daily", priority: "0.9" },
@@ -26,7 +33,7 @@ export const Route = createFileRoute("/sitemap.xml")({
         const urls = entries
           .map(
             (e) =>
-              `  <url>\n    <loc>${BASE_URL}${e.path}</loc>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`,
+              `  <url>\n    <loc>${escapeXml(BASE_URL + e.path)}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${e.changefreq}</changefreq>\n    <priority>${e.priority}</priority>\n  </url>`,
           )
           .join("\n");
 
@@ -34,7 +41,7 @@ export const Route = createFileRoute("/sitemap.xml")({
 
         return new Response(xml, {
           headers: {
-            "Content-Type": "application/xml",
+            "Content-Type": "application/xml; charset=utf-8",
             "Cache-Control": "public, max-age=3600",
           },
         });
