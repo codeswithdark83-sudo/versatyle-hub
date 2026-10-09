@@ -23,6 +23,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
           width={900}
           height={1200}
           loading={priority ? "eager" : "lazy"}
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
         />
         {product.images?.[1] && (
@@ -31,6 +32,7 @@ export function ProductCard({ product, priority = false }: { product: Product; p
             alt=""
             aria-hidden="true"
             loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
           />
         )}

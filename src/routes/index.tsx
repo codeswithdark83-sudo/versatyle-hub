@@ -86,7 +86,7 @@ function Home() {
             width={1459}
             height={1078}
             fetchPriority="high"
-            className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] sm:object-[62%_center] lg:object-[center_right] animate-ken-burns"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[68%_center] sm:object-[62%_center] lg:object-[center_right] lg:animate-ken-burns"
           />
           {/* Legibility overlays: bottom-up on phones, left-to-right on larger screens */}
           <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/90 via-black/50 to-black/10 lg:hidden" />

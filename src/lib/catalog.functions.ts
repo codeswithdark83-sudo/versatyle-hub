@@ -3,8 +3,8 @@ import { z } from "zod";
 import type { Product } from "@/data/products";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
-  const { fetchActiveProducts } = await import("./catalog.server");
-  return fetchActiveProducts();
+  const { fetchActiveProductsCached } = await import("./catalog.server");
+  return fetchActiveProductsCached();
 });
 
 export const getProductBySlug = createServerFn({ method: "GET" })

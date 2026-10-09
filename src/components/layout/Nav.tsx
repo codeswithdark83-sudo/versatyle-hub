@@ -31,7 +31,7 @@ export function Nav() {
       className={`sticky top-0 z-50 border-b transition-colors duration-300 ${
         overlay
           ? "-mb-16 bg-transparent border-transparent text-[#f5f3ee]"
-          : `bg-background/85 backdrop-blur-md border-border ${isHome ? "-mb-16" : ""}`
+          : `bg-background/95 md:bg-background/85 md:backdrop-blur-md border-border ${isHome ? "-mb-16" : ""}`
       }`}
     >
       <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">

@@ -99,9 +99,9 @@ function Shop() {
           className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-10 gap-y-14"
           step={0.06}
         >
-          {list.map((p) => (
+          {list.map((p, i) => (
             <StaggerItem key={p.slug}>
-              <ProductCard product={p} />
+              <ProductCard product={p} priority={i < 4} />
             </StaggerItem>
           ))}
         </Stagger>

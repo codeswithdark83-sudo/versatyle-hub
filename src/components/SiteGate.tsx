@@ -20,7 +20,7 @@ export function SiteGate({ initial, children }: { initial?: SiteStatus; children
     queryFn: () => getSiteStatus(),
     initialData: initial,
     initialDataUpdatedAt: 0, // always re-check on mount (needed to learn if the user is admin)
-    refetchInterval: 30_000,
+    refetchInterval: 60_000,
     refetchOnWindowFocus: true,
   });
 
