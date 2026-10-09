@@ -1,3 +1,11 @@
 User-agent: *
 Allow: /
 Disallow: /cart
+Disallow: /checkout
+Disallow: /account
+Disallow: /admin
+Disallow: /auth
+Disallow: /order/
+Disallow: /invoice/
+
+Sitemap: https://www.versatilehub.in/sitemap.xml
