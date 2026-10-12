@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { sizeLabel } from "@/lib/sizes";
 import { Minus, Plus } from "lucide-react";
 import { formatPrice, useCart } from "@/lib/cart";
 import { GST_PERCENT, RETURN_WINDOW_DAYS, gstIncluded } from "@/lib/pricing";
@@ -48,7 +49,7 @@ function CartPage() {
                       <Link to="/product/$slug" params={{ slug: item.slug }} className="font-medium hover:text-accent-foreground/70">
                         {item.name}
                       </Link>
-                      <p className="text-sm text-foreground/60 mt-1">Size {item.size} · {item.color}</p>
+                      <p className="text-sm text-foreground/60 mt-1">Size {sizeLabel(item.size)} · {item.color}</p>
                     </div>
                     <p className="tabular-nums">{formatPrice(item.price * item.quantity)}</p>
                   </div>

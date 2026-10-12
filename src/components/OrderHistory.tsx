@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { sizeLabel } from "@/lib/sizes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
@@ -548,7 +549,7 @@ export function OrderHistory() {
                               {i.name ?? i.slug}
                               <span className="text-foreground/50">
                                 {" "}
-                                · {i.size} / {i.color} × {i.quantity}
+                                · {sizeLabel(i.size)} / {i.color} × {i.quantity}
                               </span>
                             </span>
                           </li>
