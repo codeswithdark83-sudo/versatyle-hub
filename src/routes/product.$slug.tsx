@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { sizeLabel, sizeNumber } from "@/lib/sizes";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductGallery } from "@/components/ProductGallery";
@@ -52,6 +52,42 @@ export const Route = createFileRoute("/product/$slug")({
   ),
 });
 
+/** Description clamped to 4 lines with a "View more" toggle (only shown when the text is actually cut off). */
+function ProductDescription({ text }: { text: string }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [open, setOpen] = useState(false);
+  const [clamped, setClamped] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => {
+      if (!open) setClamped(el.scrollHeight > el.clientHeight + 1);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [text, open]);
+
+  return (
+    <div className="mb-10 max-w-md">
+      <p ref={ref} className={`text-foreground/70 leading-relaxed ${open ? "" : "line-clamp-4"}`}>
+        {text}
+      </p>
+      {(clamped || open) && (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="eyebrow link-underline pb-0.5 mt-3 text-foreground"
+        >
+          {open ? "View less" : "View more"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 function ProductPage() {
   const { product, related } = Route.useLoaderData();
   const { addItem, buyNow } = useCart();
@@ -101,9 +137,7 @@ function ProductPage() {
               : "Sold out"}
           </p>
 
-          <p className="text-foreground/70 leading-relaxed mb-10 max-w-md">
-            {product.description}
-          </p>
+          <ProductDescription text={product.description} />
 
           {product.colors.length > 0 && (
             <div className="mb-8">
