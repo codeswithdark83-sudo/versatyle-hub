@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { sizeLabel } from "@/lib/sizes";
 import { X, Minus, Plus } from "lucide-react";
 import { useCart, formatPrice } from "@/lib/cart";
 import { useEffect } from "react";
@@ -65,7 +66,7 @@ export function CartDrawer() {
                       <div>
                         <h3 className="text-sm font-medium">{item.name}</h3>
                         <p className="text-xs text-foreground/60 mt-1">
-                          {item.size} · {item.color}
+                          {sizeLabel(item.size)} · {item.color}
                         </p>
                       </div>
                       <p className="text-sm tabular-nums">{formatPrice(item.price * item.quantity)}</p>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { sizeLabel, sizeNumber } from "@/lib/sizes";
 import { useState } from "react";
 import { getProductBySlug } from "@/lib/catalog.functions";
 import { ProductCard } from "@/components/ProductCard";
@@ -94,9 +95,9 @@ function ProductPage() {
             {product.inStock
               ? canBuy
                 ? selected!.stock <= 3
-                  ? `Only ${selected!.stock} left in ${size}`
+                  ? `Only ${selected!.stock} left in ${sizeLabel(size)}`
                   : "In stock — ships in 1–2 days"
-                : `Size ${size} is sold out`
+                : `Size ${sizeLabel(size)} is sold out`
               : "Sold out"}
           </p>
 
@@ -151,7 +152,10 @@ function ProductPage() {
                           : "border-border hover:border-foreground/40"
                     }`}
                   >
-                    {v.size}
+                    <span>{v.size}</span>
+                    {sizeNumber(v.size) && (
+                      <span className="ml-1.5 text-xs opacity-60">{sizeNumber(v.size)}</span>
+                    )}
                   </button>
                 );
               })}

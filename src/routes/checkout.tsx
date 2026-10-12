@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { sizeLabel } from "@/lib/sizes";
 import { Banknote, Check, CreditCard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatPrice, useCart } from "@/lib/cart";
@@ -503,7 +504,7 @@ function CheckoutPage() {
                   <span className="text-foreground/70">
                     {i.name}{" "}
                     <span className="text-foreground/40">
-                      · {i.size} / {i.color} × {i.quantity}
+                      · {sizeLabel(i.size)} / {i.color} × {i.quantity}
                     </span>
                   </span>
                   <span className="tabular-nums">
