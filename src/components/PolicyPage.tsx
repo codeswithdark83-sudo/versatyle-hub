@@ -47,7 +47,7 @@ export function PolicyPage({
         {intro ? <p className="text-lg text-foreground/70 leading-relaxed mb-12">{intro}</p> : null}
         <div className="space-y-12">{children}</div>
         <p className="mt-16 pt-8 border-t border-border text-xs text-foreground/50">
-          Last updated: September 2026 · Questions? hello@versatile.in · Instagram @we.are.versatile
+          Last updated: September 2026 · Questions? hello@versatile.in · Instagram @versatilehub.in
         </p>
       </article>
     </div>
