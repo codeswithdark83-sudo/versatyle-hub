@@ -11,7 +11,7 @@ export const BUSINESS = {
   instagramUrl: "https://www.instagram.com/we.are.versatile",
   instagramHandle: "@we.are.versatile",
   developerName: "Jatin Kr. Koli",
-  developerUrl: "https://linktr.ee/codeswithjatin",
+  developerUrl: "https://codeswithdark.vercel.app/",
   gstin: "",
   address: "",
 };
