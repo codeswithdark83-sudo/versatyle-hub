@@ -20,7 +20,7 @@ export function publicClient() {
 }
 
 export const PRODUCT_SELECT =
-  "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, images, sort_order, product_variants(size, stock, price, sort_order)";
+  "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, images, sort_order, created_at, product_variants(size, stock, price, sort_order)";
 
 export type ProductRow = {
   id: string;
@@ -36,6 +36,7 @@ export type ProductRow = {
   image_url: string | null;
   images: string[] | null;
   sort_order: number;
+  created_at?: string | null;
   product_variants: { size: string; stock: number; price: number | null; sort_order: number }[] | null;
 };
 
@@ -62,6 +63,7 @@ export function toProduct(row: ProductRow): Product {
     sizes: variants.map((v) => v.size),
     variants,
     totalStock,
+    createdAt: row.created_at ?? undefined,
     inStock: totalStock > 0,
   };
 }
@@ -71,7 +73,9 @@ export async function fetchActiveProducts(): Promise<Product[]> {
     .from("products")
     .select(PRODUCT_SELECT)
     .eq("is_active", true)
-    .order("sort_order", { ascending: true });
+    .order("sort_order", { ascending: true })
+    // Same sort order (the default 0) → newest product first, so new items lead the list.
+    .order("created_at", { ascending: false });
   if (error) {
     console.error("fetchActiveProducts failed", error);
     return [];

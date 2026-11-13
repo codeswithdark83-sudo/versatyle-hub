@@ -49,7 +49,10 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const newArrivals = Route.useLoaderData().slice(0, 4);
+  // "New Arrivals" = the most recently added products, newest first.
+  const newArrivals = [...Route.useLoaderData()]
+    .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+    .slice(0, 4);
   const chapters: Chapter[] = [
     {
       no: "01",

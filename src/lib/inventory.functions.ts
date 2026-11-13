@@ -49,7 +49,8 @@ export const listInventory = createServerFn({ method: "GET" })
       .select(
         "id, slug, name, price, compare_at_price, category, tags, colors, description, material, image_url, images, is_active, sort_order, product_variants(id, size, stock, price, sort_order)",
       )
-      .order("sort_order", { ascending: true });
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return (data ?? []).map((p: any) => ({
       id: p.id as string,

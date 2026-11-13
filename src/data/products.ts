@@ -20,6 +20,8 @@ export type Product = {
   sizes: string[];
   variants: ProductVariant[];
   totalStock: number;
+  /** ISO timestamp the product was added; used to show the newest first. */
+  createdAt?: string;
   inStock: boolean;
 };
 

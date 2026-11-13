@@ -30,6 +30,7 @@ export const getProductBySlug = createServerFn({ method: "GET" })
       .eq("is_active", true)
       .neq("slug", data.slug)
       .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
       .limit(4);
 
     return {
