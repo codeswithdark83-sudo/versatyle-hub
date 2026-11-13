@@ -3,9 +3,24 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Wrench } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { getMaintenanceSetting, setMaintenanceMode } from "@/lib/site.functions";
+import {
+  checkCanManageMaintenance,
+  getMaintenanceSetting,
+  setMaintenanceMode,
+} from "@/lib/site.functions";
 
+/** Shown only to the developer account; the store owner never sees it. */
 export function MaintenanceToggle() {
+  const { data: access } = useQuery({
+    queryKey: ["admin", "maintenance-access"],
+    queryFn: () => checkCanManageMaintenance(),
+    staleTime: 5 * 60_000,
+  });
+  if (!access?.allowed) return null;
+  return <MaintenanceCard />;
+}
+
+function MaintenanceCard() {
   const qc = useQueryClient();
   const { data, isLoading, error } = useQuery({
     queryKey: ["admin", "maintenance"],
