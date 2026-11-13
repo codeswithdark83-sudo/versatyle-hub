@@ -63,3 +63,21 @@ export async function assertStoreOpen() {
     "The store is under maintenance right now, so orders and payments are paused. Please try again shortly.",
   );
 }
+
+/**
+ * Only the developer account may switch maintenance mode on/off. Other admins (e.g. the store
+ * owner) keep full access to the admin panel and inventory but cannot change this setting.
+ */
+export const MAINTENANCE_CONTROLLER_EMAILS = ["codeswithdark83@gmail.com"];
+
+export async function userCanManageMaintenance(userId: string): Promise<boolean> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const u = data?.user;
+    if (!u?.email || !u.email_confirmed_at) return false;
+    return MAINTENANCE_CONTROLLER_EMAILS.includes(u.email.toLowerCase());
+  } catch {
+    return false;
+  }
+}

@@ -17,11 +17,19 @@ export const getSiteStatus = createServerFn({ method: "GET" }).handler(async () 
   };
 });
 
+/** Admin: whether this signed-in user may view/change maintenance mode (developer only). */
+export const checkCanManageMaintenance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { userCanManageMaintenance } = await import("./maintenance.server");
+    return { allowed: await userCanManageMaintenance(context.userId) };
+  });
+
 /** Admin: current setting, exactly as stored (message may be empty). */
 export const getMaintenanceSetting = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdminCtx(context);
+    await assertDeveloperCtx(context);
     const { readMaintenance } = await import("./maintenance.server");
     return readMaintenance();
   });
@@ -32,7 +40,7 @@ export const setMaintenanceMode = createServerFn({ method: "POST" })
     z.object({ enabled: z.boolean(), message: z.string().max(400).default("") }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertAdminCtx(context);
+    await assertDeveloperCtx(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("site_settings").upsert({
       key: "maintenance",
@@ -59,4 +67,12 @@ async function assertAdminCtx(ctx: { supabase: any; userId: string }) {
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Forbidden");
+}
+
+async function assertDeveloperCtx(ctx: { supabase: any; userId: string }) {
+  await assertAdminCtx(ctx);
+  const { userCanManageMaintenance } = await import("./maintenance.server");
+  if (!(await userCanManageMaintenance(ctx.userId))) {
+    throw new Error("Only the developer can change maintenance mode.");
+  }
 }
