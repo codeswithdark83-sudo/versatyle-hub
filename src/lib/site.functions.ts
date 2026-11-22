@@ -4,11 +4,17 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 /** Public: lets every visitor know whether the store is in maintenance mode. */
 export const getSiteStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const { readMaintenance, readFake404, requestIsAdmin, DEFAULT_MAINTENANCE_MESSAGE } =
+  const {
+    readMaintenance,
+    readFake404,
+    requestIsAdmin,
+    requestIsDeveloper,
+    DEFAULT_MAINTENANCE_MESSAGE,
+  } =
     await import("./maintenance.server");
   const [m, fake404] = await Promise.all([readMaintenance(), readFake404()]);
   if (!m.enabled && !fake404) {
-    return { maintenance: false, message: "", isAdmin: false, fake404: false };
+    return { maintenance: false, message: "", isAdmin: false, isDeveloper: false, fake404: false };
   }
   return {
     maintenance: m.enabled,
@@ -16,6 +22,8 @@ export const getSiteStatus = createServerFn({ method: "GET" }).handler(async () 
     fake404,
     // Admins keep full access so they can test and switch these modes off again.
     isAdmin: await requestIsAdmin(),
+    // With fake 404 on, only the developer still sees the real site (the owner sees the 404 too).
+    isDeveloper: fake404 ? await requestIsDeveloper() : false,
   };
 });
 
