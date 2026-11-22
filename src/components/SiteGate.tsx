@@ -11,6 +11,7 @@ export type SiteStatus = {
   maintenance: boolean;
   message: string;
   isAdmin: boolean;
+  isDeveloper?: boolean;
   fake404?: boolean;
 };
 
@@ -30,10 +31,13 @@ export function SiteGate({ initial, children }: { initial?: SiteStatus; children
     refetchOnWindowFocus: true,
   });
 
-  const status = data ?? { maintenance: false, message: "", isAdmin: false, fake404: false };
+  const status = data ?? { maintenance: false, message: "", isAdmin: false, isDeveloper: false, fake404: false };
   const open = ALWAYS_OPEN.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 
-  if (status.fake404 && !status.isAdmin && !open) {
+  // Fake 404: everyone (customers AND the owner) gets the 404 screen. Only the developer sees the
+  // real site. /auth stays reachable so the developer can sign in to switch it off.
+  const showFake404 = status.fake404 && !status.isDeveloper && pathname !== "/auth";
+  if (showFake404) {
     return <FakeNotFound />;
   }
 
@@ -61,13 +65,16 @@ export function SiteGate({ initial, children }: { initial?: SiteStatus; children
           </Link>
         </div>
       )}
-      {status.fake404 && status.isAdmin && (
+      {status.fake404 && status.isDeveloper && (
         <div className="bg-red-500 text-white text-xs sm:text-sm px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
           <TriangleAlert className="size-4 shrink-0" aria-hidden />
           <span>
-            <strong>Fake 404 is ON.</strong> Visitors see a “404 page not found” screen instead of the
-            store.
+            <strong>Fake 404 is ON.</strong> Everyone else (customers and the owner) sees a “404 page not
+            found” screen. Only you can see the store.
           </span>
+          <Link to="/admin" className="underline underline-offset-2 font-medium">
+            Turn off in Admin
+          </Link>
         </div>
       )}
       {children}

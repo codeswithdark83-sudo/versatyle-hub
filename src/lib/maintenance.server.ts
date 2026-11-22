@@ -74,8 +74,12 @@ export async function requestIsAdmin(): Promise<boolean> {
 export async function assertStoreOpen() {
   const [m, fake404] = await Promise.all([readMaintenance(), readFake404()]);
   if (!m.enabled && !fake404) return;
+  // Fake 404 hides the store from everyone except the developer; maintenance lets any admin in.
+  if (fake404) {
+    if (await requestIsDeveloper()) return;
+    throw new Error("Not found");
+  }
   if (await requestIsAdmin()) return;
-  if (fake404 && !m.enabled) throw new Error("Not found");
   throw new Error(
     "The store is under maintenance right now, so orders and payments are paused. Please try again shortly.",
   );
@@ -94,6 +98,26 @@ export async function userCanManageMaintenance(userId: string): Promise<boolean>
     const u = data?.user;
     if (!u?.email || !u.email_confirmed_at) return false;
     return MAINTENANCE_CONTROLLER_EMAILS.includes(u.email.toLowerCase());
+  } catch {
+    return false;
+  }
+}
+
+/** True when the request carries a valid bearer token of the developer account. */
+export async function requestIsDeveloper(): Promise<boolean> {
+  try {
+    const raw = getRequestHeader("authorization");
+    const token = raw?.startsWith("Bearer ") ? raw.slice(7) : undefined;
+    if (!token) return false;
+    const authClient = createClient<Database>(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: u } = await authClient.auth.getUser(token);
+    const id = u.user?.id;
+    if (!id) return false;
+    return await userCanManageMaintenance(id);
   } catch {
     return false;
   }
