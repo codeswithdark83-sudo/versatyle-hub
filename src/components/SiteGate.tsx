@@ -5,8 +5,14 @@ import { TriangleAlert } from "lucide-react";
 import { getSiteStatus } from "@/lib/site.functions";
 import { useAuth } from "@/lib/auth";
 import { MaintenancePage } from "@/components/MaintenancePage";
+import { FakeNotFound } from "@/components/FakeNotFound";
 
-export type SiteStatus = { maintenance: boolean; message: string; isAdmin: boolean };
+export type SiteStatus = {
+  maintenance: boolean;
+  message: string;
+  isAdmin: boolean;
+  fake404?: boolean;
+};
 
 // Routes that stay reachable during maintenance: staff sign-in/admin (so it can be switched
 // off again) and the order confirmation page (so someone who paid a moment ago sees it).
@@ -24,8 +30,12 @@ export function SiteGate({ initial, children }: { initial?: SiteStatus; children
     refetchOnWindowFocus: true,
   });
 
-  const status = data ?? { maintenance: false, message: "", isAdmin: false };
+  const status = data ?? { maintenance: false, message: "", isAdmin: false, fake404: false };
   const open = ALWAYS_OPEN.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
+  if (status.fake404 && !status.isAdmin && !open) {
+    return <FakeNotFound />;
+  }
 
   if (status.maintenance && !status.isAdmin && !open) {
     return (
@@ -49,6 +59,15 @@ export function SiteGate({ initial, children }: { initial?: SiteStatus; children
           <Link to="/admin" className="underline underline-offset-2 font-medium">
             Turn off in Admin
           </Link>
+        </div>
+      )}
+      {status.fake404 && status.isAdmin && (
+        <div className="bg-red-500 text-white text-xs sm:text-sm px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+          <TriangleAlert className="size-4 shrink-0" aria-hidden />
+          <span>
+            <strong>Fake 404 is ON.</strong> Visitors see a “404 page not found” screen instead of the
+            store.
+          </span>
         </div>
       )}
       {children}

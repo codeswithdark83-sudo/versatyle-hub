@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminStats } from "@/lib/admin.functions";
 import { MaintenanceToggle } from "@/components/admin/MaintenanceToggle";
+import { Fake404Toggle } from "@/components/admin/Fake404Toggle";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: OverviewPage,
@@ -27,6 +28,7 @@ function OverviewPage() {
     return (
       <div className="space-y-10">
         <MaintenanceToggle />
+        <Fake404Toggle />
         {isLoading ? (
           <p className="text-sm text-foreground/50">Loading…</p>
         ) : (
@@ -53,6 +55,7 @@ function OverviewPage() {
   return (
     <div className="space-y-10">
       <MaintenanceToggle />
+      <Fake404Toggle />
       <section className="grid grid-cols-2 md:grid-cols-3 gap-px bg-border border border-border">
         {kpis.map((k) => (
           <div key={k.label} className="bg-background p-6">

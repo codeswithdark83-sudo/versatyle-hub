@@ -27,6 +27,22 @@ export async function readMaintenance(): Promise<MaintenanceState> {
   }
 }
 
+/** Reads the "fake 404" flag. Fails OPEN (store stays visible) on any error. */
+export async function readFake404(): Promise<boolean> {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "fake404")
+      .maybeSingle();
+    if (error || !data) return false;
+    return ((data.value ?? {}) as { enabled?: unknown }).enabled === true;
+  } catch {
+    return false;
+  }
+}
+
 /** True when the request carries a valid bearer token of a user with the admin role. */
 export async function requestIsAdmin(): Promise<boolean> {
   try {
@@ -56,9 +72,10 @@ export async function requestIsAdmin(): Promise<boolean> {
 
 /** Server-side gate for anything that takes an order or payment. Admins may still test. */
 export async function assertStoreOpen() {
-  const m = await readMaintenance();
-  if (!m.enabled) return;
+  const [m, fake404] = await Promise.all([readMaintenance(), readFake404()]);
+  if (!m.enabled && !fake404) return;
   if (await requestIsAdmin()) return;
+  if (fake404 && !m.enabled) throw new Error("Not found");
   throw new Error(
     "The store is under maintenance right now, so orders and payments are paused. Please try again shortly.",
   );
