@@ -133,7 +133,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     try {
       return await getSiteStatus();
     } catch {
-      return { maintenance: false, message: "", isAdmin: false };
+      return { maintenance: false, message: "", isAdmin: false, fake404: false };
     }
   },
   shellComponent: RootShell,
